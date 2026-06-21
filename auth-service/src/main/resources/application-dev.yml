@@ -1,0 +1,44 @@
+# Server port for the auth-service in the development environment
+#server:
+#  port: 8083
+
+# Spring application name
+#spring:
+#  application:
+#    name: auth-service
+
+  # Database connection settings for PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5001/auth_db
+    username: admin_user
+    password: password
+
+  # JPA and Hibernate settings
+  jpa:
+    hibernate:
+      # Automatically update the database schema on startup for development
+      ddl-auto: update
+    properties:
+      hibernate:
+        # Explicitly set the dialect for PostgreSQL
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        # Format the SQL logs to be more readable
+        format_sql: true
+    # Show the generated SQL queries in the logs
+    show-sql: true
+
+# Eureka client configuration for service discovery
+eureka:
+  client:
+    # URL of the Eureka server
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    # Fetch the registry information from the Eureka server
+    fetch-registry: true
+    # Register this instance with the Eureka server
+    register-with-eureka: true
+
+# JWT (JSON Web Token) settings - replace with your actual secret and expiration
+jwt:
+  secret: 2f84ef2da9df36469b77e4046a9d9221f827f5b7707e8d37cf38aed5f8de9eee
+  expiration: 86400000 # 24 hours in milliseconds
