@@ -3,7 +3,7 @@
 #  port: 8083
 
 # Spring application name
-#spring:
+spring:
 #  application:
 #    name: auth-service
 
@@ -28,17 +28,17 @@
     show-sql: true
 
 # Eureka client configuration for service discovery
-eureka:
-  client:
-    # URL of the Eureka server
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    # Fetch the registry information from the Eureka server
-    fetch-registry: true
-    # Register this instance with the Eureka server
-    register-with-eureka: true
+#eureka:
+#  client:
+#    # URL of the Eureka server
+#    service-url:
+#      defaultZone: http://localhost:8761/eureka/
+#    # Fetch the registry information from the Eureka server
+#    fetch-registry: true
+#    # Register this instance with the Eureka server
+#    register-with-eureka: true
 
 # JWT (JSON Web Token) settings - replace with your actual secret and expiration
-jwt:
-  secret: 2f84ef2da9df36469b77e4046a9d9221f827f5b7707e8d37cf38aed5f8de9eee
-  expiration: 86400000 # 24 hours in milliseconds
+#jwt:
+#  secret: 2f84ef2da9df36469b77e4046a9d9221f827f5b7707e8d37cf38aed5f8de9eee
+#  expiration: 86400000 # 24 hours in milliseconds
