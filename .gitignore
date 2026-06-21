@@ -1,0 +1,58 @@
+# Ignore compiled Java class files
+*.class
+
+# Ignore log files
+*.log
+
+# Ignore BlueJ files
+*.ctxt
+
+# Ignore Mobile Tools for Java (J2ME) files
+.mtj.tmp/
+
+# Ignore package files and archives
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Ignore virtual machine crash logs
+hs_err_pid*
+
+# Ignore build artifacts and output directories
+target/
+.mvn/
+build/
+.gradle/
+
+# Ignore IDE-specific files and directories
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.factorypath
+.settings/
+.vscode/
+nbproject/
+
+# Ignore Spring Tool Suite (STS) specific files
+.springBeans
+.sts4-cache
+.apt_generated
+
+# Ignore local configuration and secrets files
+local.properties
+secrets.properties
+application-local.properties
+application-local.yml
+application-local.yaml
+
+# Ignore macOS specific files
+.DS_Store
+
+### MetaData ###
+.metadata/
