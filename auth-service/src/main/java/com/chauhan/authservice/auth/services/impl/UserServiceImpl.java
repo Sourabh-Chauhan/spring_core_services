@@ -12,7 +12,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -38,6 +37,14 @@ public class UserServiceImpl implements UserService {
         User user = modelMapper.map(userDto, User.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setProvider(userDto.getProvider() != null ? userDto.getProvider() : Provider.LOCAL);
+        
+        // Handle the nullable Boolean for 'enable'. Default to true if not provided in the request.
+        if (userDto.getEnable() == null) {
+            user.setEnable(true);
+        } else {
+            user.setEnable(userDto.getEnable());
+        }
+
         User savedUser = userRepository.save(user);
         return modelMapper.map(savedUser, UserDto.class);
     }
@@ -90,7 +97,11 @@ public class UserServiceImpl implements UserService {
         }
 
         if (userDto.getProvider() != null) user.setProvider(userDto.getProvider());
-        user.setEnable(userDto.isEnable());
+        
+        // Handle the nullable Boolean for 'enable' on update.
+        if (userDto.getEnable() != null) {
+             user.setEnable(userDto.getEnable());
+        }
 //        user.setUpdatedAt(Instant.now());
 
         User updatedUser = userRepository.save(user);
