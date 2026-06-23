@@ -42,3 +42,20 @@ spring:
 #jwt:
 #  secret: 2f84ef2da9df36469b77e4046a9d9221f827f5b7707e8d37cf38aed5f8de9eee
 #  expiration: 86400000 # 24 hours in milliseconds
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.chauhan.authservice: DEBUG
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:saiofal;vkasfbehwqpofhjashofjaswfpojasfvbafop[hfifonfo[shjfwefjjfslajfsahfoshffasnbash[f}
+    issuer: ${JWT_ISSUER:api.substring.com}
+    access-ttl-seconds: ${JWT_ACCESS_TTL_SECONDS:30}
+    refresh-ttl-seconds: ${JWT_REFRESH_TTL_SECONDS:86400}
+    refresh-token-cookie-name: ${JWT_REFRESH_COOKIE_NAME:refreshToken}
+    cookie-secure: ${JWT_COOKIE_SECURE:true}
+    cookie-http-only: ${JWT_COOKIE_HTTP_ONLY:true}
+    cookie-same-site: ${JWT_COOKIE_SAME_SITE:lax}
+    cookie-domain: ${JWT_COOKIE_DOMAIN:localhost}
