@@ -14,7 +14,7 @@ This checklist outlines the development goals for the authentication and authori
     - [x] Create `POST /auth/register` endpoint.
     - [x] Implement validation for email, password strength, and uniqueness.
     - [x] Hash passwords using BCrypt.
-    - [ ] Assign a default role to new users.
+    - [x] Assign a default role to new users.
 - [x] **Login:**
     - [x] Create `POST /auth/login` endpoint.
     - [x] Validate credentials.

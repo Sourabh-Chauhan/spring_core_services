@@ -138,4 +138,36 @@ class EmailVerificationTests {
         assertTrue(newTokenOpt.isPresent());
         assertNotEquals(initialTokenStr, newTokenOpt.get().getToken());
     }
+
+    @Test
+    void testDefaultRoleAssignedToNewUser() throws Exception {
+        String registerJson = "{\"email\":\"" + REGISTER_EMAIL + "\",\"name\":\"Role Test User\",\"password\":\"" + REGISTER_PASSWORD + "\"}";
+
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(registerJson))
+                .andExpect(status().isCreated());
+
+        User user = userRepository.findByEmail(REGISTER_EMAIL)
+                .orElseThrow(() -> new AssertionError("User not saved in database"));
+        
+        assertEquals(1, user.getRoles().size());
+        assertEquals("ROLE_USER", user.getRoles().iterator().next().getName());
+    }
+
+    @Test
+    void testPrivilegeEscalationPreventedOnRegistration() throws Exception {
+        String registerJson = "{\"email\":\"" + REGISTER_EMAIL + "\",\"name\":\"Escalation Test User\",\"password\":\"" + REGISTER_PASSWORD + "\",\"roles\":[{\"name\":\"ROLE_ADMIN\"}]}";
+
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(registerJson))
+                .andExpect(status().isCreated());
+
+        User user = userRepository.findByEmail(REGISTER_EMAIL)
+                .orElseThrow(() -> new AssertionError("User not saved in database"));
+
+        assertEquals(1, user.getRoles().size());
+        assertEquals("ROLE_USER", user.getRoles().iterator().next().getName());
+    }
 }
