@@ -13,6 +13,17 @@ spring:
     username: admin_user
     password: password
 
+  # Spring Mail settings for MailHog
+  mail:
+    host: localhost
+    port: 1025
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
   # JPA and Hibernate settings
   jpa:
     hibernate:
@@ -59,3 +70,6 @@ security:
     cookie-http-only: ${JWT_COOKIE_HTTP_ONLY:true}
     cookie-same-site: ${JWT_COOKIE_SAME_SITE:lax}
     cookie-domain: ${JWT_COOKIE_DOMAIN:localhost}
+  verification:
+    token-ttl-seconds: ${VERIFICATION_TOKEN_TTL_SECONDS:86400}
+    app-url: ${APP_URL:http://localhost:8082}

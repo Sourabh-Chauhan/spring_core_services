@@ -1,11 +1,16 @@
 package com.chauhan.authservice.service.impl;
 
 import com.chauhan.authservice.dto.UserDto;
+import com.chauhan.authservice.entity.User;
+import com.chauhan.authservice.entity.VerificationToken;
+import com.chauhan.authservice.repository.UserRepository;
 import com.chauhan.authservice.service.AuthService;
+import com.chauhan.authservice.service.EmailService;
 import com.chauhan.authservice.service.UserService;
-import lombok.AllArgsConstructor;
+import com.chauhan.authservice.service.VerificationTokenService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * RESPONSIBILITY:
@@ -19,16 +24,29 @@ import org.springframework.stereotype.Service;
  *
  * TODO:
  * - Ensure registerUser explicitly strips incoming roles and sets a default role (e.g., "ROLE_USER" or "ROLE_GUEST").
- * - Implement email validation / verification flows during the registration process.
  */
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final UserService userService;
+    private final UserRepository userRepository;
+    private final VerificationTokenService tokenService;
+    private final EmailService emailService;
 
     @Override
+    @Transactional
     public UserDto registerUser(UserDto userDto) {
+        UserDto registeredUserDto = userService.createUser(userDto);
 
-        return  userService.createUser(userDto);
+        User user = userRepository.findByEmail(registeredUserDto.getEmail())
+                .orElseThrow(() -> new IllegalStateException("Registered user not found in database."));
+
+        // Generate email verification token
+        VerificationToken verificationToken = tokenService.createTokenForUser(user);
+
+        // Send verification email
+        emailService.sendVerificationEmail(user.getEmail(), verificationToken.getToken());
+
+        return registeredUserDto;
     }
 }

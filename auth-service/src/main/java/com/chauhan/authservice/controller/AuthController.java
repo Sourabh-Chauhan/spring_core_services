@@ -10,9 +10,16 @@ import com.chauhan.authservice.security.CookieUtilService;
 import com.chauhan.authservice.security.JwtUtil;
 import com.chauhan.authservice.service.AuthService;
 import com.chauhan.authservice.service.impl.RefreshTokenService;
+import com.chauhan.authservice.dto.request.ResendVerificationRequest;
+import com.chauhan.authservice.entity.VerificationToken;
+import com.chauhan.authservice.exceptions.EmailNotVerifiedException;
+import com.chauhan.authservice.repository.UserRepository;
+import com.chauhan.authservice.service.EmailService;
+import com.chauhan.authservice.service.VerificationTokenService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.modelmapper.ModelMapper;
@@ -23,12 +30,15 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -58,6 +68,9 @@ public class AuthController {
     private final CookieUtilService cookieUtilService;
     private final ModelMapper mapper;
     private final RefreshTokenService refreshTokenService;
+    private final VerificationTokenService verificationTokenService;
+    private final UserRepository userRepository;
+    private final EmailService emailService;
 
     /**
      * Handles user registration requests.
@@ -78,7 +91,7 @@ public class AuthController {
      * @return A response entity containing the access and refresh tokens.
      */
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         // This is the primary entry point for the authentication process.
         // It delegates the core authentication logic to the AuthenticationManager.
         Authentication authentication = getAuthentication(loginRequest);
@@ -88,6 +101,11 @@ public class AuthController {
         Object principal = authentication.getPrincipal();
         if (!(principal instanceof User authenticatedUser)) {
             throw new IllegalStateException("Authentication principal is not a User instance");
+        }
+
+        // Check if email is verified
+        if (!authenticatedUser.isEmailVerified()) {
+            throw new EmailNotVerifiedException("Email is not verified. Please check your inbox for verification link.");
         }
 
         // Once authenticated, generate the necessary tokens.
@@ -142,6 +160,42 @@ public class AuthController {
         SecurityContextHolder.clearContext();
 
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Verifies a user's email using the provided token.
+     */
+    @GetMapping("/verify-email")
+    public ResponseEntity<Map<String, String>> verifyEmail(@RequestParam("token") String token) {
+        VerificationToken verificationToken = verificationTokenService.validateToken(token);
+        User user = verificationToken.getUser();
+        
+        user.setEmailVerified(true);
+        userRepository.save(user);
+        
+        verificationTokenService.deleteToken(verificationToken);
+        
+        return ResponseEntity.ok(Map.of("message", "Email verified successfully. You can now log in."));
+    }
+
+    /**
+     * Resends the verification email to the user if their email is not verified.
+     */
+    @PostMapping("/resend-verification")
+    public ResponseEntity<Map<String, String>> resendVerification(@Valid @RequestBody ResendVerificationRequest request) {
+        Optional<User> userOpt = userRepository.findByEmail(request.email());
+        
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            if (user.isEmailVerified()) {
+                return ResponseEntity.ok(Map.of("message", "Email is already verified."));
+            }
+            
+            VerificationToken token = verificationTokenService.createTokenForUser(user);
+            emailService.sendVerificationEmail(user.getEmail(), token.getToken());
+        }
+        
+        return ResponseEntity.ok(Map.of("message", "If the email is registered, a new verification link has been sent."));
     }
 
     /**

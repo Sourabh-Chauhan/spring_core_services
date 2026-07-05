@@ -30,11 +30,11 @@ This checklist outlines the development goals for the authentication and authori
 
 ## Phase 2: Email Verification and Account Management
 
-- [ ] **Email Verification:**
-    - [ ] Generate and email a verification token upon registration.
-    - [ ] Create `GET /auth/verify-email` endpoint to handle token verification.
-    - [ ] Prevent login for users with unverified emails.
-    - [ ] Implement a `POST /auth/resend-verification` endpoint.
+- [x] **Email Verification:**
+    - [x] Generate and email a verification token upon registration.
+    - [x] Create `GET /auth/verify-email` endpoint to handle token verification.
+    - [x] Prevent login for users with unverified emails.
+    - [x] Implement a `POST /auth/resend-verification` endpoint.
 - [ ] **Password Reset:**
     - [ ] Implement a "forgot password" flow that emails a password reset link.
     - [ ] Create `POST /auth/reset-password` endpoint to handle the password update.
@@ -63,6 +63,8 @@ This checklist outlines the development goals for the authentication and authori
 - [ ] **Auditing and Logging:**
     - [ ] Implement audit logging for important events (e.g., login, password change).
     - [ ] Use Spring Events for asynchronous logging.
+- [ ] **Asynchronous Messaging & Decoupling:**
+    - [ ] Refactor the email service to be asynchronous and decoupled using a message broker (e.g., Kafka or RabbitMQ).
 - [ ] **Rate Limiting:**
     - [ ] Implement rate limiting on sensitive endpoints like login and password reset.
 - [ ] **Scheduled Jobs:**

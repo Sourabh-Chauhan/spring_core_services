@@ -50,6 +50,17 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles unverified email exceptions.
+     * Returns a 403 Forbidden status.
+     */
+    @ExceptionHandler(EmailNotVerifiedException.class)
+    public ResponseEntity<ApiError> handleEmailNotVerifiedException(EmailNotVerifiedException ex, HttpServletRequest request) {
+        logger.warn("Email verification required: {}", ex.getMessage());
+        ApiError apiError = ApiError.of(HttpStatus.FORBIDDEN.value(), "Email Not Verified", ex.getMessage(), request.getRequestURI());
+        return new ResponseEntity<>(apiError, HttpStatus.FORBIDDEN);
+    }
+
+    /**
      * Handles exceptions for when a requested resource cannot be found.
      * Returns a 404 Not Found status.
      */

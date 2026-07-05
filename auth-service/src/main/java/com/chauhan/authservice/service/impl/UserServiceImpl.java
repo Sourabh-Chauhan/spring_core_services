@@ -68,6 +68,8 @@ public class UserServiceImpl implements UserService {
         } else {
             user.setEnable(userDto.getEnable());
         }
+        
+        user.setEmailVerified(false);
 
         User savedUser = userRepository.save(user);
         return modelMapper.map(savedUser, UserDto.class);
@@ -141,6 +143,9 @@ public class UserServiceImpl implements UserService {
         // Handle the nullable Boolean for 'enable' on update.
         if (userDto.getEnable() != null) {
              user.setEnable(userDto.getEnable());
+        }
+        if (userDto.getEmailVerified() != null) {
+            user.setEmailVerified(userDto.getEmailVerified());
         }
 //        user.setUpdatedAt(Instant.now());
 
