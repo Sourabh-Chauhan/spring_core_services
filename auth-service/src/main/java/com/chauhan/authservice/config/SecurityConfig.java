@@ -1,8 +1,9 @@
-package com.chauhan.authservice.auth.config;
+package com.chauhan.authservice.config;
 
-import com.chauhan.authservice.auth.security.CustomAccessDeniedHandler;
-import com.chauhan.authservice.auth.security.CustomAuthenticationEntryPoint;
-import com.chauhan.authservice.auth.security.JwtFilter;
+
+import com.chauhan.authservice.security.CustomAccessDeniedHandler;
+import com.chauhan.authservice.security.CustomAuthenticationEntryPoint;
+import com.chauhan.authservice.security.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +26,20 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * RESPONSIBILITY:
+ * Core configuration class for Spring Security. Sets up stateless session management,
+ * path-based authorization rules, CORS, password hashing using BCrypt, and hooks in custom filters (like JwtFilter).
+ *
+ * ISSUES / SECURITY CONCERNS:
+ * 1. Commented-out Authorization Rules: The path rules restricting `/api/v1/users/**` to ADMIN are commented out.
+ *    Any authenticated user has access to these endpoints, which is a major security flaw.
+ * 2. Insecure CORS Configuration: `allowedOrigins("*")` is used, which is highly insecure for production environments.
+ *
+ * TODO:
+ * - Uncomment and properly configure path-based role rules using `hasRole()` or `hasAuthority()`.
+ * - Restrict CORS `allowedOrigins` to a specific whitelist.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity()

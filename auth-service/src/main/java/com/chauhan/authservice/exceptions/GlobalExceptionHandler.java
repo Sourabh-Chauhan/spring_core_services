@@ -17,6 +17,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * RESPONSIBILITY:
+ * Centralized exception interceptor. Converts standard and custom Java exceptions thrown in the application 
+ * (like resource exceptions, validation errors, and authentication failures) into user-friendly JSON payloads (`ApiError`).
+ *
+ * ISSUES / SECURITY CONCERNS:
+ * 1. Lack of Method Validation Execution: Although there's a handler for `MethodArgumentNotValidException`,
+ *    neither `AuthController` nor `UserController` use `@Valid` in their mapping handlers, so this handler is never run.
+ *
+ * TODO:
+ * - Ensure `@Valid` is added to request parameters/DTOs in controllers to make validation errors catchable.
+ * - Add a specific handler for access-denied or authorization failures if they are not already managed by CustomAccessDeniedHandler.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -40,6 +53,13 @@ public class GlobalExceptionHandler {
      * Handles exceptions for when a requested resource cannot be found.
      * Returns a 404 Not Found status.
      */
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleResourceAlreadyExistsException(ResourceAlreadyExistsException ex, HttpServletRequest request) {
+        logger.info("Resource Already Exists : {}", ex.getMessage());
+        ApiError apiError = ApiError.of(HttpStatus.BAD_REQUEST.value(), "Resource Already Exists", ex.getMessage(), request.getRequestURI());
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleResourceNotFoundException(ResourceNotFoundException ex, HttpServletRequest request) {
         logger.info("Resource not found: {}", ex.getMessage());

@@ -88,7 +88,10 @@ com.chauhan.authservice
 │   └── HealthController.java
 │
 ├── service/
-│   ├── AuthenticationService.java
+│   ├── impl/                       # Service implementations
+│   │   ├── AuthenticationServiceImpl.java
+│   │   └── ...
+│   ├── AuthenticationService.java  # Service interfaces
 │   ├── JwtService.java
 │   ├── TokenBlacklistService.java
 │   ├── RefreshTokenService.java
