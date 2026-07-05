@@ -1,11 +1,14 @@
 package com.chauhan.authservice.service.impl;
 
+import com.chauhan.authservice.config.AppConstants;
 import com.chauhan.authservice.entity.Provider;
 import com.chauhan.authservice.entity.User;
+import com.chauhan.authservice.entity.Role;
 import com.chauhan.authservice.exceptions.ResourceNotFoundException;
 import com.chauhan.authservice.exceptions.ResourceAlreadyExistsException;
 import com.chauhan.authservice.dto.UserDto;
 import com.chauhan.authservice.repository.UserRepository;
+import com.chauhan.authservice.repository.RoleRepository;
 import com.chauhan.authservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -40,6 +43,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
 
@@ -70,6 +74,15 @@ public class UserServiceImpl implements UserService {
         }
         
         user.setEmailVerified(false);
+
+        // Strip any external/provided roles to prevent privilege escalation
+        user.setRoles(new java.util.HashSet<>());
+
+        // Assign the default role
+        Role defaultRole = roleRepository.findByName("ROLE_" + AppConstants.USER_ROLE)
+                .orElseGet(() -> roleRepository.save(Role.builder().id(UUID.randomUUID()).name("ROLE_" + AppConstants.USER_ROLE).build()));
+
+        user.getRoles().add(defaultRole);
 
         User savedUser = userRepository.save(user);
         return modelMapper.map(savedUser, UserDto.class);
