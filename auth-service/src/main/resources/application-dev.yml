@@ -73,3 +73,5 @@ security:
   verification:
     token-ttl-seconds: ${VERIFICATION_TOKEN_TTL_SECONDS:86400}
     app-url: ${APP_URL:http://localhost:8082}
+  password-reset:
+    token-ttl-seconds: ${PASSWORD_RESET_TOKEN_TTL_SECONDS:900}

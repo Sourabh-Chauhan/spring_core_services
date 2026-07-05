@@ -1,9 +1,11 @@
 package com.chauhan.authservice.controller;
 
 import com.chauhan.authservice.dto.UserDto;
+import com.chauhan.authservice.dto.request.ForgotPasswordRequest;
 import com.chauhan.authservice.dto.request.LoginRequest;
 import com.chauhan.authservice.dto.request.RefreshTokenRequest;
 import com.chauhan.authservice.dto.request.ResendVerificationRequest;
+import com.chauhan.authservice.dto.request.ResetPasswordRequest;
 import com.chauhan.authservice.dto.response.TokenResponse;
 import com.chauhan.authservice.security.CookieUtilService;
 import com.chauhan.authservice.service.AuthService;
@@ -112,6 +114,28 @@ public class AuthController {
     ) {
         authService.resendVerification(request.email());
         return ResponseEntity.ok(Map.of("message", "If the email is registered, a new verification link has been sent."));
+    }
+
+    /**
+     * Initiates a forgot password flow. Sends a reset link to the email if registered.
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request
+    ) {
+        authService.forgotPassword(request.email());
+        return ResponseEntity.ok(Map.of("message", "If the email is registered, a password reset link has been sent."));
+    }
+
+    /**
+     * Resets the user's password using the validation token.
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request
+    ) {
+        authService.resetPassword(request.token(), request.newPassword());
+        return ResponseEntity.ok(Map.of("message", "Password reset successfully. You can now log in."));
     }
 
     /**

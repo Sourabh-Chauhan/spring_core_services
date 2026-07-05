@@ -45,4 +45,30 @@ public class EmailServiceImpl implements EmailService {
             logger.warn("Failed to send verification email to {} via SMTP server. Make sure MailHog is running. Error: {}", to, e.getMessage());
         }
     }
+
+    @Override
+    public void sendPasswordResetEmail(String to, String token) {
+        String resetUrl = appUrl + "/api/v1/auth/reset-password?token=" + token;
+        String subject = "Password Reset Request";
+        String content = "We received a request to reset your password. Please click the link below to update your password:\n"
+                + resetUrl + "\n\nThis link is valid for 15 minutes.";
+
+        logger.info("==================================================");
+        logger.info("PASSWORD RESET EMAIL SIMULATION (LOCAL LOG):");
+        logger.info("To: {}", to);
+        logger.info("Subject: {}", subject);
+        logger.info("Link: {}", resetUrl);
+        logger.info("==================================================");
+
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(content);
+            mailSender.send(message);
+            logger.info("Password reset email successfully sent to {} via SMTP server.", to);
+        } catch (Exception e) {
+            logger.warn("Failed to send password reset email to {} via SMTP server. Make sure MailHog is running. Error: {}", to, e.getMessage());
+        }
+    }
 }

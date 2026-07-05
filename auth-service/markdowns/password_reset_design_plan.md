@@ -1,6 +1,6 @@
-# Design Plan: Password Reset Flow
+# Design Plan: Password Reset Flow (Clean Controller Edition)
 
-This design document outlines the implementation plan for the **Forgot Password** and **Password Reset** flows in the `auth-service`.
+This design document outlines the implementation plan for the **Forgot Password** and **Password Reset** flows in the `auth-service`, utilizing our clean decoupled architecture.
 
 ---
 
@@ -10,52 +10,40 @@ This design document outlines the implementation plan for the **Forgot Password*
 sequenceDiagram
     actor User
     participant AuthController
-    participant UserService
+    participant AuthService
     participant TokenService
     participant EmailService
     participant DB
 
     Note over User, DB: Forgot Password Flow
     User->>AuthController: POST /api/v1/auth/forgot-password (email)
-    AuthController->>UserService: Find user by email
-    UserService->>DB: Query User
-    DB-->>UserService: User details
-    AuthController->>TokenService: Create Reset Token
+    AuthController->>AuthService: forgotPassword(email)
+    AuthService->>DB: Query User by Email
+    DB-->>AuthService: User details (if exists)
+    AuthService->>TokenService: Create Reset Token
     TokenService->>DB: Save PasswordResetToken (user, token, expiry)
-    AuthController->>EmailService: Send email with reset link
+    AuthService->>EmailService: Send email with reset link
     EmailService-->>User: Reset Email (link with token)
+    AuthController-->>User: Success Response (200 OK)
 
     Note over User, DB: Reset Password Flow
     User->>AuthController: POST /api/v1/auth/reset-password (token, newPassword)
-    AuthController->>TokenService: Validate Token & Expiry
-    TokenService->>DB: Query Token
+    AuthController->>AuthService: resetPassword(token, newPassword)
+    AuthService->>TokenService: Validate Token
+    TokenService->>DB: Query & Validate Token
     DB-->>TokenService: PasswordResetToken details
-    AuthController->>UserService: Update user password (hashed)
-    UserService->>DB: Save updated User
-    AuthController->>TokenService: Invalidate/Delete Token
+    AuthService->>DB: Update User Password (hashed)
+    AuthService->>TokenService: Invalidate/Delete Token
     TokenService->>DB: Delete Token
     AuthController-->>User: Success Response (200 OK)
 ```
 
 ---
 
-## 2. Dependencies
-
-We will add the `spring-boot-starter-mail` dependency to `pom.xml` to support sending emails.
-
-```xml
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-mail</artifactId>
-</dependency>
-```
-
----
-
-## 3. Database & Entity Design
+## 2. Entity Design
 
 ### `PasswordResetToken` Entity
-We will create a new entity class `PasswordResetToken` representing the token associated with a user for password resets.
+A new entity class `PasswordResetToken` representing the token associated with a user for password resets.
 
 * **Attributes:**
   * `id`: `UUID` (Primary Key)
@@ -64,6 +52,13 @@ We will create a new entity class `PasswordResetToken` representing the token as
   * `expiryDate`: `Instant` (Timestamp after which the token is invalid; default lifetime of 15 minutes)
 
 ```java
+package com.chauhan.authservice.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.Instant;
+import java.util.UUID;
+
 @Entity
 @Table(name = "password_reset_tokens")
 @Getter
@@ -91,111 +86,142 @@ public class PasswordResetToken {
 
 ---
 
+## 3. Repositories
+
+### `PasswordResetTokenRepository`
+```java
+package com.chauhan.authservice.repository;
+
+import com.chauhan.authservice.entity.PasswordResetToken;
+import com.chauhan.authservice.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
+import java.util.UUID;
+
+public interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken, UUID> {
+    Optional<PasswordResetToken> findByToken(String token);
+    Optional<PasswordResetToken> findByUser(User user);
+    void deleteByUser(User user);
+}
+```
+
+---
+
 ## 4. DTOs
 
 ### `ForgotPasswordRequest`
-Used in the request payload of the forgot password endpoint.
 ```java
+package com.chauhan.authservice.dto.request;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 public record ForgotPasswordRequest(
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email is required !!")
+    @Email(message = "Invalid Email !!")
     String email
 ) {}
 ```
 
 ### `ResetPasswordRequest`
-Used in the request payload of the reset password endpoint.
 ```java
+package com.chauhan.authservice.dto.request;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public record ResetPasswordRequest(
-    @NotBlank(message = "Token is required")
+    @NotBlank(message = "Token is required !!")
     String token,
 
-    @NotBlank(message = "New password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters long")
+    @NotBlank(message = "New password is required !!")
+    @Size(min = 8, message = "Password must be at least 8 characters long !!")
     String newPassword
 ) {}
 ```
 
 ---
 
-## 5. Service Layer
+## 5. Service Layer Updates
 
-### Email Service
-* **Interface**: `EmailService`
-* **Implementation**: `EmailServiceImpl` (using `JavaMailSender`)
-* **Responsibility**: Sends emails with HTML formatting or plain text.
+### 1. `EmailService` interface update:
+Add method signature:
+```java
+void sendPasswordResetEmail(String to, String token);
+```
 
-### Password Reset Token Service
-* **Interface**: `PasswordResetTokenService`
-* **Implementation**: `PasswordResetTokenServiceImpl`
-* **Responsibilities**:
-  * Create a secure random token for a user.
-  * Retrieve and validate a token (checking if it exists and is not expired).
-  * Delete/invalidate the token after successful usage.
+And in `EmailServiceImpl`, implement SMTP sending to MailHog.
 
-### UserService Updates
-* Add a method to update the user's password using the hashed new password:
-  ```java
-  void updatePassword(User user, String newPassword);
-  ```
+### 2. New `PasswordResetTokenService` interface:
+```java
+package com.chauhan.authservice.service;
+
+import com.chauhan.authservice.entity.PasswordResetToken;
+import com.chauhan.authservice.entity.User;
+
+public interface PasswordResetTokenService {
+    PasswordResetToken createTokenForUser(User user);
+    PasswordResetToken validateToken(String tokenString);
+    void deleteToken(PasswordResetToken token);
+    void deleteTokenByUser(User user);
+}
+```
+
+Implement it as `PasswordResetTokenServiceImpl` calling `passwordResetTokenRepository.flush()` during deletes to avoid constraint conflicts.
+
+### 3. `AuthService` updates:
+Expose:
+```java
+void forgotPassword(String email);
+void resetPassword(String token, String newPassword);
+```
+
+Implement in `AuthServiceImpl`:
+- `forgotPassword(email)`:
+  - Find user by email. If not found, return immediately (security practice).
+  - Create reset token, and send reset email.
+- `resetPassword(token, newPassword)`:
+  - Validate reset token.
+  - Hashing the new password.
+  - Update user password.
+  - Delete reset token.
 
 ---
 
-## 6. REST Controller Endpoints
+## 6. Controller Endpoints
 
-In [AuthController](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/java/com/chauhan/authservice/controller/AuthController.java):
+Add to `AuthController`:
 
 1. **`POST /api/v1/auth/forgot-password`**
    * **Request Body**: `ForgotPasswordRequest`
-   * **Behavior**:
-     * Look up the user by email. If the user doesn't exist, return 200 OK anyway to prevent **email enumeration** attacks (but don't send an email).
-     * If the user exists, create a `PasswordResetToken`.
-     * Build the reset URL (e.g. `http://localhost:3000/reset-password?token=<token>`).
-     * Call the `EmailService` to send the link to the user.
-     * Return a generic success message (e.g. "If the email is registered, you will receive a password reset link").
    * **Access**: Public.
+   * **Behavior**:
+     ```java
+     @PostMapping("/forgot-password")
+     public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+         authService.forgotPassword(request.email());
+         return ResponseEntity.ok(Map.of("message", "If the email is registered, a password reset link has been sent."));
+     }
+     ```
 
 2. **`POST /api/v1/auth/reset-password`**
    * **Request Body**: `ResetPasswordRequest`
-   * **Behavior**:
-     * Fetch the `PasswordResetToken` by the provided token string.
-     * If not found or expired (compare `expiryDate` with current time), throw a validation exception/bad request.
-     * Hash the `newPassword` and update the user's password.
-     * Save the user.
-     * Delete the `PasswordResetToken` so it cannot be reused.
-     * Return success message.
    * **Access**: Public.
+   * **Behavior**:
+     ```java
+     @PostMapping("/reset-password")
+     public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+         authService.resetPassword(request.token(), request.newPassword());
+         return ResponseEntity.ok(Map.of("message", "Password reset successfully. You can now log in."));
+     }
+     ```
 
 ---
 
-## 7. Mail & Token Expiry Configuration
+## 7. Development Configurations
 
-In `application-dev.yml`, configure default SMTP properties. For local development, we can configure properties targeting standard local mail servers (e.g., Maildev/MailHog) or standard mock properties:
-
+In `application-dev.yml`, under `security`:
 ```yaml
-spring:
-  mail:
-    host: localhost
-    port: 1025 # Maildev / Mailhog SMTP default port
-    properties:
-      mail:
-        smtp:
-          auth: false
-          starttls:
-            enable: false
-```
-
-And define configuration properties for token lifetime (defaulting to 900 seconds / 15 minutes):
-
-```yaml
-security:
   password-reset:
-    token-ttl-seconds: 900
-    reset-url: http://localhost:8082/api/v1/auth/reset-password # or frontend reset page
+    token-ttl-seconds: ${PASSWORD_RESET_TOKEN_TTL_SECONDS:900} # 15 minutes
 ```
-
----
-
-## 8. Verification of Security Mapping
-
-* Public URLs in `AppConstants.java` include `/api/v1/auth/**`, so any new endpoints under `/api/v1/auth/` will automatically be public and bypass JWT filter checks. This matches the requirements.

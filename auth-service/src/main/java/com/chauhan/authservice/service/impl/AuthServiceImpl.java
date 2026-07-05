@@ -3,6 +3,7 @@ package com.chauhan.authservice.service.impl;
 import com.chauhan.authservice.dto.UserDto;
 import com.chauhan.authservice.dto.request.LoginRequest;
 import com.chauhan.authservice.dto.response.TokenResponse;
+import com.chauhan.authservice.entity.PasswordResetToken;
 import com.chauhan.authservice.entity.RefreshToken;
 import com.chauhan.authservice.entity.User;
 import com.chauhan.authservice.entity.VerificationToken;
@@ -11,6 +12,7 @@ import com.chauhan.authservice.repository.UserRepository;
 import com.chauhan.authservice.security.JwtUtil;
 import com.chauhan.authservice.service.AuthService;
 import com.chauhan.authservice.service.EmailService;
+import com.chauhan.authservice.service.PasswordResetTokenService;
 import com.chauhan.authservice.service.UserService;
 import com.chauhan.authservice.service.VerificationTokenService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +39,8 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
     private final ModelMapper mapper;
+    private final PasswordResetTokenService passwordResetTokenService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -134,5 +139,26 @@ public class AuthServiceImpl implements AuthService {
                 emailService.sendVerificationEmail(user.getEmail(), token.getToken());
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public void forgotPassword(String email) {
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            PasswordResetToken token = passwordResetTokenService.createTokenForUser(user);
+            emailService.sendPasswordResetEmail(user.getEmail(), token.getToken());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        PasswordResetToken resetToken = passwordResetTokenService.validateToken(token);
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        passwordResetTokenService.deleteToken(resetToken);
     }
 }

@@ -35,9 +35,9 @@ This checklist outlines the development goals for the authentication and authori
     - [x] Create `GET /auth/verify-email` endpoint to handle token verification.
     - [x] Prevent login for users with unverified emails.
     - [x] Implement a `POST /auth/resend-verification` endpoint.
-- [ ] **Password Reset:**
-    - [ ] Implement a "forgot password" flow that emails a password reset link.
-    - [ ] Create `POST /auth/reset-password` endpoint to handle the password update.
+- [x] **Password Reset:**
+    - [x] Implement a "forgot password" flow that emails a password reset link.
+    - [x] Create `POST /auth/reset-password` endpoint to handle the password update.
 - [x] **Logout:**
     - [x] Create `POST /auth/logout` endpoint.
     - [ ] Implement a token blacklist using Redis to invalidate access tokens.
