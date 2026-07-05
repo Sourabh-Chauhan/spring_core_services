@@ -42,16 +42,27 @@ public class User implements UserDetails {
 
     private String password;
     private String image;
+
+    @Builder.Default
     private boolean enable = true;
+
+    @Builder.Default
+    private boolean emailVerified = false;
+
+    @Builder.Default
     private Instant createdAt = Instant.now();
+
+    @Builder.Default
     private Instant updatedAt = Instant.now();
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private Provider provider = Provider.LOCAL;
     private String providerId;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
     @PrePersist
