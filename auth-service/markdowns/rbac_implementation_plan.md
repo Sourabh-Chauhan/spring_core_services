@@ -12,7 +12,7 @@ In a secure enterprise application, hardcoding permission checks bound strictly 
 graph LR
     User -->|has many| Role
     Role -->|has many| Permission
-    Permission -->|protects| Endpoint/Method
+    Permission -->|protects| EndpointMethod["Endpoint/Method"]
 ```
 
 ### A. Coarse-Grained Roles vs. Fine-Grained Permissions

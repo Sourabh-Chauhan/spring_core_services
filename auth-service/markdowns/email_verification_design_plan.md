@@ -26,7 +26,7 @@ sequenceDiagram
     EmailService-->>User: Verification Email (link with token)
 
     Note over User, DB: Email Verification Flow
-    User->>AuthController: GET /api/v1/auth/verify-email?token=<token>
+    User->>AuthController: "GET /api/v1/auth/verify-email?token={token}"
     AuthController->>TokenService: Validate Token & Expiry
     TokenService->>DB: Query Token
     DB-->>TokenService: VerificationToken details

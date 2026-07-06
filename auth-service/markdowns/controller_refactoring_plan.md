@@ -21,18 +21,18 @@ This document outlines the refactoring strategy for [AuthController.java](file:/
 graph TD
     Client[HTTP Client] --> AuthController[AuthController]
     
-    subgraph Presentation Layer (HTTP-Specific)
+    subgraph PresentationLayer ["Presentation Layer (HTTP-Specific)"]
         AuthController
     end
     
-    subgraph Service Layer (Business Logic)
+    subgraph ServiceLayer ["Service Layer (Business Logic)"]
         AuthController --> AuthService[AuthService / AuthServiceImpl]
         AuthService --> RefreshTokenService[RefreshTokenService]
         AuthService --> VerificationTokenService[VerificationTokenService]
         AuthService --> EmailService[EmailService]
     end
     
-    subgraph Data Access Layer
+    subgraph DataAccessLayer ["Data Access Layer"]
         AuthService --> UserRepository[UserRepository]
         VerificationTokenService --> VerificationTokenRepository[VerificationTokenRepository]
     end
