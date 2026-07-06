@@ -18,7 +18,9 @@ public class AppConstants {
             "/api/v1/auth/**",
             "/v3/api-docs/**",
             "/swagger-ui.html",
-            "/swagger-ui/**"
+            "/swagger-ui/**",
+            "/login/oauth2/**",
+            "/oauth2/**"
     };
 
     public static final String[] AUTH_ADMIN_URLS= {

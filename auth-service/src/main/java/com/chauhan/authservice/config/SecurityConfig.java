@@ -15,8 +15,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -40,6 +38,9 @@ import java.util.List;
  * - Uncomment and properly configure path-based role rules using `hasRole()` or `hasAuthority()`.
  * - Restrict CORS `allowedOrigins` to a specific whitelist.
  */
+import com.chauhan.authservice.security.OAuth2FailureHandler;
+import com.chauhan.authservice.security.OAuth2SuccessHandler;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity()
@@ -49,11 +50,8 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -93,7 +91,13 @@ public class SecurityConfig {
                 .accessDeniedHandler(accessDeniedHandler)           // Handles 403 Forbidden
             )
 
-            // 3. Explicit Security Headers (Hardening the API)
+            // 3. OAuth2 Social Login Configuration
+            .oauth2Login(oauth2 -> oauth2
+                .successHandler(oAuth2SuccessHandler)
+                .failureHandler(oAuth2FailureHandler)
+            )
+
+            // 4. Explicit Security Headers (Hardening the API)
             .headers(headers -> headers
                 .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'")) // Basic CSP: only load resources from the same origin
                 .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny) // Prevent clickjacking (don't allow the app to be loaded in an iframe)

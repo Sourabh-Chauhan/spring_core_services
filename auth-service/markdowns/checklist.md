@@ -45,13 +45,13 @@ This checklist outlines the development goals for the authentication and authori
 
 ## Phase 3: OAuth2 and Social Login
 
-- [ ] **OAuth2 Configuration:**
-    - [ ] Configure Spring Security for OAuth2 login with providers like Google, GitHub, etc.
-    - [ ] Implement `OAuth2SuccessHandler` and `OAuth2FailureHandler`.
-- [ ] **User Provisioning:**
-    - [ ] Find or create a user account based on the email from the OAuth2 provider.
-    - [ ] Link the OAuth2 account to the internal user.
-    - [ ] Issue internal JWTs upon successful OAuth2 login.
+- [x] **OAuth2 Configuration:**
+    - [x] Configure Spring Security for OAuth2 login with providers like Google, GitHub, etc.
+    - [x] Implement `OAuth2SuccessHandler` and `OAuth2FailureHandler`.
+- [x] **User Provisioning:**
+    - [x] Find or create a user account based on the email from the OAuth2 provider.
+    - [x] Link the OAuth2 account to the internal user.
+    - [x] Issue internal JWTs upon successful OAuth2 login.
 
 ## Phase 4: Advanced Features and Production Hardening
 
