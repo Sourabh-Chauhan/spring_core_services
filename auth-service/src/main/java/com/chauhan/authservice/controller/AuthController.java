@@ -52,8 +52,10 @@ public class AuthController {
      * Authenticates a user with email and password, and returns access and refresh tokens.
      */
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        TokenResponse tokenResponse = authService.login(loginRequest);
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
+        String userAgent = request.getHeader("User-Agent");
+        String ipAddress = request.getRemoteAddr();
+        TokenResponse tokenResponse = authService.login(loginRequest, ipAddress, userAgent);
 
         // Attach the refresh token as a secure, HTTP-only cookie.
         cookieUtilService.attachRefreshCookie(response, tokenResponse.refreshToken(), (int) tokenResponse.expiresIn());
@@ -74,7 +76,9 @@ public class AuthController {
         String refreshTokenString = readRefreshTokenFromRequest(body, request)
                 .orElseThrow(() -> new BadCredentialsException("Refresh token is missing"));
 
-        TokenResponse tokenResponse = authService.refresh(refreshTokenString);
+        String userAgent = request.getHeader("User-Agent");
+        String ipAddress = request.getRemoteAddr();
+        TokenResponse tokenResponse = authService.refresh(refreshTokenString, ipAddress, userAgent);
 
         cookieUtilService.attachRefreshCookie(response, tokenResponse.refreshToken(), (int) tokenResponse.expiresIn());
         cookieUtilService.addNoStoreHeaders(response);

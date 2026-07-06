@@ -137,3 +137,21 @@ All endpoints require a valid access token belonging to a user with the `ROLE_AD
 * **Assign Role to User**
   * **Method:** `POST`
   * **URL:** `http://localhost:8083/api/v1/admin/users/{userId}/roles/{roleId}`
+
+---
+
+### D. Session Management Controller (`/api/v1/sessions`)
+All endpoints under this path require a valid access token in the Authorization header.
+* **Headers:** `Authorization: Bearer <accessToken>`
+
+* **Get All Active Sessions**
+  * **Method:** `GET`
+  * **URL:** `http://localhost:8083/api/v1/sessions`
+  * **Note:** Returns a list of active sessions with client metadata (OS, browser, IP, start time, expiration) and a `currentSession` flag indicating the active caller device.
+* **Revoke Specific Session**
+  * **Method:** `DELETE`
+  * **URL:** `http://localhost:8083/api/v1/sessions/{sessionId}` (Replace `{sessionId}` with the refresh token database ID)
+* **Revoke All Other Sessions**
+  * **Method:** `DELETE`
+  * **URL:** `http://localhost:8083/api/v1/sessions/other`
+  * **Note:** Revokes all active sessions for the user *except* the one issuing the request.

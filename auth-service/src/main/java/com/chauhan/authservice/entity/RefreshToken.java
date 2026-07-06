@@ -38,8 +38,14 @@ public class RefreshToken {
     @Column(nullable = false)
     private boolean revoked;
 
-//    private String refreshToken;
-
     private String replacedByToken;
 
+    @Column(name = "ip_address", length = 45)
+    private String ipAddress;
+
+    @Column(name = "user_agent", length = 500)
+    private String userAgent;
+
+    @Column(name = "device_info", length = 150)
+    private String deviceInfo;
 }

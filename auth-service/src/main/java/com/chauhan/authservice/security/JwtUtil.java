@@ -63,17 +63,23 @@ public class JwtUtil {
     }
 
     /**
-     * Generates a new access token for the given user.
+    public String generateAccessToken(User user) {
+        return generateAccessToken(user, UUID.randomUUID().toString());
+    }
+
+    /**
+     * Generates a new access token for the given user with a specific JTI.
      *
      * @param user The user for whom the token is being generated.
+     * @param jti  The JTI of the associated session/refresh token.
      * @return A signed JWT access token as a String.
      */
-    public String generateAccessToken(User user) {
+    public String generateAccessToken(User user, String jti) {
         Instant now = Instant.now();
         List<String> roles = user.getRoles() == null ? List.of() :
                 user.getRoles().stream().map(Role::getName).toList();
         return Jwts.builder()
-                .id(UUID.randomUUID().toString())
+                .id(jti)
                 .subject(user.getId().toString()) // Using User ID as the subject
                 .issuer(issuer)
                 .issuedAt(Date.from(now))

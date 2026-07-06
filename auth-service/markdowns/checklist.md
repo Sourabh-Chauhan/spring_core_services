@@ -58,8 +58,8 @@ This checklist outlines the development goals for the authentication and authori
 - [x] **Role-Based Access Control (RBAC):**
     - [x] Implement endpoints for managing roles and permissions.
     - [x] Use `@PreAuthorize` for method-level security.
-- [ ] **Session Management:**
-    - [ ] Create endpoints to view and revoke user sessions.
+- [x] **Session Management:**
+    - [x] Create endpoints to view and revoke user sessions.
 - [ ] **Auditing and Logging:**
     - [ ] Implement audit logging for important events (e.g., login, password change).
     - [ ] Use Spring Events for asynchronous logging.

@@ -62,7 +62,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public TokenResponse login(LoginRequest loginRequest) {
+    public TokenResponse login(LoginRequest loginRequest, String ipAddress, String userAgent) {
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
@@ -82,8 +82,8 @@ public class AuthServiceImpl implements AuthService {
             throw new EmailNotVerifiedException("Email is not verified. Please check your inbox for verification link.");
         }
 
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(authenticatedUser);
-        String accessToken = jwtUtil.generateAccessToken(authenticatedUser);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(authenticatedUser, ipAddress, userAgent);
+        String accessToken = jwtUtil.generateAccessToken(authenticatedUser, refreshToken.getJti());
         String refreshTokenString = jwtUtil.generateRefreshToken(authenticatedUser, refreshToken.getJti());
 
         return TokenResponse.of(
@@ -96,11 +96,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public TokenResponse refresh(String refreshTokenString) {
-        RefreshToken newRefreshToken = refreshTokenService.validateAndRotateRefreshToken(refreshTokenString);
+    public TokenResponse refresh(String refreshTokenString, String ipAddress, String userAgent) {
+        RefreshToken newRefreshToken = refreshTokenService.validateAndRotateRefreshToken(refreshTokenString, ipAddress, userAgent);
         User user = newRefreshToken.getUser();
 
-        String newAccessToken = jwtUtil.generateAccessToken(user);
+        String newAccessToken = jwtUtil.generateAccessToken(user, newRefreshToken.getJti());
         String newRefreshTokenString = jwtUtil.generateRefreshToken(user, newRefreshToken.getJti());
 
         return TokenResponse.of(

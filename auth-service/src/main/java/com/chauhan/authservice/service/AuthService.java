@@ -7,9 +7,9 @@ import com.chauhan.authservice.dto.response.TokenResponse;
 public interface AuthService {
     UserDto registerUser(UserDto userDto);
     
-    TokenResponse login(LoginRequest loginRequest);
+    TokenResponse login(LoginRequest loginRequest, String ipAddress, String userAgent);
     
-    TokenResponse refresh(String refreshToken);
+    TokenResponse refresh(String refreshToken, String ipAddress, String userAgent);
     
     void logout(String accessToken, String refreshToken);
     

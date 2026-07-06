@@ -131,8 +131,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         }
 
         // 2. Generate Tokens
-        RefreshToken refreshTokenEntity = refreshTokenService.createRefreshToken(user);
-        String accessToken = jwtUtil.generateAccessToken(user);
+        String userAgent = request.getHeader("User-Agent");
+        String ipAddress = request.getRemoteAddr();
+        RefreshToken refreshTokenEntity = refreshTokenService.createRefreshToken(user, ipAddress, userAgent);
+        String accessToken = jwtUtil.generateAccessToken(user, refreshTokenEntity.getJti());
         String refreshTokenString = jwtUtil.generateRefreshToken(user, refreshTokenEntity.getJti());
 
         // 3. Attach Refresh Token Cookie
