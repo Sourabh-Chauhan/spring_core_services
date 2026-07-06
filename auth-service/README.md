@@ -138,7 +138,5 @@ auth-service/
 
 ## 🧪 API Documentation
 
-The complete API references detailing HTTP Method types, request JSON body models, parameter schemas, and response
-formats for testing in **Postman** can be found in:
-
-* [API Note.md](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/markdowns/API%20Note.md)
+The complete API references detailing HTTP Method types, request JSON body models, parameter schemas, and response formats for testing in **Postman** can be found in:
+* [API Note.md](markdowns/API%20Note.md)
