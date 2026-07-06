@@ -24,6 +24,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.UUID;
 
+import com.chauhan.authservice.service.TokenBlacklistService;
+
 /**
  * A filter that runs once per request to process the JWT for authentication,
  * using a guard clause style for improved readability.
@@ -35,6 +37,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull  HttpServletResponse response, @NonNull  FilterChain filterChain) throws ServletException, IOException {
@@ -59,6 +62,13 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         if (!jwtUtil.isAccessToken(jwt)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (tokenBlacklistService.isTokenBlacklisted(jwt)) {
+            logger.debug("JWT token is blacklisted. Denying access.");
+            request.setAttribute("jwt_error", "Token has been invalidated (logged out).");
             filterChain.doFilter(request, response);
             return;
         }

@@ -201,4 +201,24 @@ public class JwtUtil {
             return false;
         }
     }
+
+    /**
+     * Calculates the remaining time-to-live (TTL) of the token in seconds.
+     *
+     * @param token The JWT token string.
+     * @return The remaining TTL in seconds, or 0 if expired/invalid.
+     */
+    public long getRemainingTtlSeconds(String token) {
+        try {
+            Claims claims = getAllClaimsFromToken(token);
+            Date expiration = claims.getExpiration();
+            if (expiration == null) {
+                return 0;
+            }
+            long remainingMillis = expiration.getTime() - System.currentTimeMillis();
+            return Math.max(0, remainingMillis / 1000);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
 }

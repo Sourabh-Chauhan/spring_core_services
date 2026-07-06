@@ -15,6 +15,7 @@ import com.chauhan.authservice.service.EmailService;
 import com.chauhan.authservice.service.PasswordResetTokenService;
 import com.chauhan.authservice.service.UserService;
 import com.chauhan.authservice.service.VerificationTokenService;
+import com.chauhan.authservice.service.TokenBlacklistService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
     private final ModelMapper mapper;
     private final PasswordResetTokenService passwordResetTokenService;
     private final PasswordEncoder passwordEncoder;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     @Transactional
@@ -111,8 +113,16 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void logout(String refreshTokenString) {
-        refreshTokenService.revokeRefreshToken(refreshTokenString);
+    public void logout(String accessToken, String refreshTokenString) {
+        if (accessToken != null && !accessToken.isBlank()) {
+            long ttlSeconds = jwtUtil.getRemainingTtlSeconds(accessToken);
+            if (ttlSeconds > 0) {
+                tokenBlacklistService.blacklistToken(accessToken, ttlSeconds);
+            }
+        }
+        if (refreshTokenString != null && !refreshTokenString.isBlank()) {
+            refreshTokenService.revokeRefreshToken(refreshTokenString);
+        }
     }
 
     @Override

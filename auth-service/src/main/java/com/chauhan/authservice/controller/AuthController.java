@@ -87,7 +87,15 @@ public class AuthController {
      */
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
-        readRefreshTokenFromRequest(null, request).ifPresent(authService::logout);
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String accessToken = null;
+        if (authHeader != null && authHeader.regionMatches(true, 0, "Bearer ", 0, 7)) {
+            accessToken = authHeader.substring(7).trim();
+        }
+
+        String refreshToken = readRefreshTokenFromRequest(null, request).orElse(null);
+
+        authService.logout(accessToken, refreshToken);
 
         cookieUtilService.clearRefreshCookie(response);
         cookieUtilService.addNoStoreHeaders(response);

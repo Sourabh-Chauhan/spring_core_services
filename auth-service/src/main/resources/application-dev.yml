@@ -7,6 +7,13 @@ spring:
 #  application:
 #    name: auth-service
 
+  # Redis connection configuration
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
+      password: ${SPRING_REDIS_PASSWORD:}
+
   # Database connection settings for PostgreSQL
   datasource:
     url: jdbc:postgresql://localhost:5001/auth_db

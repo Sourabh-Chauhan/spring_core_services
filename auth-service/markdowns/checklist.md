@@ -40,7 +40,7 @@ This checklist outlines the development goals for the authentication and authori
     - [x] Create `POST /auth/reset-password` endpoint to handle the password update.
 - [x] **Logout:**
     - [x] Create `POST /auth/logout` endpoint.
-    - [ ] Implement a token blacklist using Redis to invalidate access tokens.
+    - [x] Implement a token blacklist using Redis to invalidate access tokens.
     - [x] Revoke the refresh token in the database.
 
 ## Phase 3: OAuth2 and Social Login
