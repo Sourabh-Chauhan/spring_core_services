@@ -110,7 +110,10 @@ public class GlobalExceptionHandler {
      * Returns a 500 Internal Server Error status.
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleGlobalException(Exception ex, HttpServletRequest request) {
+    public ResponseEntity<ApiError> handleGlobalException(Exception ex, HttpServletRequest request) throws Exception {
+        if (ex instanceof org.springframework.security.access.AccessDeniedException) {
+            throw ex;
+        }
         // Log the full stack trace for unexpected errors at the ERROR level
         logger.error("An unexpected error occurred", ex);
         ApiError apiError = ApiError.of(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Server Error", "An unexpected error occurred. Please try again later.", request.getRequestURI());

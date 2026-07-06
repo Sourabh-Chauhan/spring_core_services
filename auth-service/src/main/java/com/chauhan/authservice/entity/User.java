@@ -87,7 +87,16 @@ public class User implements UserDetails {
         if (this.roles == null) {
             return Collections.emptyList();
         }
-        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).toList();
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        for (Role role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+            if (role.getPermissions() != null) {
+                for (Permission permission : role.getPermissions()) {
+                    authorities.add(new SimpleGrantedAuthority(permission.getName()));
+                }
+            }
+        }
+        return authorities;
     }
 
     /**

@@ -55,9 +55,9 @@ This checklist outlines the development goals for the authentication and authori
 
 ## Phase 4: Advanced Features and Production Hardening
 
-- [ ] **Role-Based Access Control (RBAC):**
-    - [ ] Implement endpoints for managing roles and permissions.
-    - [ ] Use `@PreAuthorize` for method-level security.
+- [x] **Role-Based Access Control (RBAC):**
+    - [x] Implement endpoints for managing roles and permissions.
+    - [x] Use `@PreAuthorize` for method-level security.
 - [ ] **Session Management:**
     - [ ] Create endpoints to view and revoke user sessions.
 - [ ] **Auditing and Logging:**
