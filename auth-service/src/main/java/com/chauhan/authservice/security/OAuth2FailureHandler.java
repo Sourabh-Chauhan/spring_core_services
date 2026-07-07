@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -21,6 +22,10 @@ import java.io.IOException;
 public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(OAuth2FailureHandler.class);
+    
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -33,7 +38,7 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
         String ipAddress = request.getRemoteAddr();
         eventPublisher.publishEvent(new AuditEvent(this, AppConstants.AUDIT_EVENT_LOGIN_FAILURE, "oauth-failure", ipAddress, userAgent, "OAuth2 login failed: " + exception.getMessage()));
 
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/login")
+        String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/login")
                 .queryParam("error", exception.getLocalizedMessage())
                 .build().toUriString();
 

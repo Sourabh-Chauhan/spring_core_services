@@ -16,6 +16,7 @@ import com.chauhan.authservice.event.AuditEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -36,6 +37,9 @@ import java.util.UUID;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(OAuth2SuccessHandler.class);
+
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -83,7 +87,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         if (email == null) {
             logger.error("Could not retrieve email from OAuth2 provider");
-            response.sendRedirect("http://localhost:3000/login?error=email_not_found");
+            response.sendRedirect(frontendUrl + "/login?error=email_not_found");
             return;
         }
 
@@ -148,7 +152,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         eventPublisher.publishEvent(new AuditEvent(this, AppConstants.AUDIT_EVENT_LOGIN_SUCCESS, user.getEmail(), ipAddress, userAgent, "OAuth2 login successful via provider: " + clientRegistrationId));
 
         // 4. Redirect user to frontend app
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/oauth2/redirect")
+        String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/oauth2/redirect")
                 .queryParam("token", accessToken)
                 .build().toUriString();
 

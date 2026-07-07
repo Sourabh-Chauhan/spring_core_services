@@ -110,5 +110,6 @@ security:
     token-ttl-seconds: ${PASSWORD_RESET_TOKEN_TTL_SECONDS:900}
 
 app:
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
   scheduling:
     audit-log-retention-days: ${AUDIT_LOG_RETENTION_DAYS:30}
