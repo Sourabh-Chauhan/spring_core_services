@@ -335,6 +335,40 @@ All endpoints under this path require a valid access token in the Authorization 
     }
     ```
 
+* **Partially Update User**
+  * **Method:** `PATCH`
+  * **URL:** `http://localhost:8083/api/v1/users/{userId}` (Replace `{userId}` with UUID)
+  * **Headers:** `Authorization: Bearer <accessToken>`
+  * **Query Params:** None
+  * **Body (JSON):**
+    ```json
+    {
+      "name": "Jane Smith Updated",
+      "image": null
+    }
+    ```
+  * **Response (JSON):**
+    ```json
+    {
+      "id": "e4b2d56a-1234-5678-abcd-ef0123456789",
+      "email": "user@example.com",
+      "name": "Jane Smith Updated",
+      "image": null,
+      "enable": true,
+      "emailVerified": true,
+      "createdAt": "2026-07-07T08:49:21Z",
+      "updatedAt": "2026-07-08T02:29:08Z",
+      "provider": "LOCAL",
+      "roles": [
+        {
+          "id": "f5c3e67b-1234-5678-abcd-ef0123456789",
+          "name": "ROLE_USER"
+        }
+      ]
+    }
+    ```
+  * **Note:** The `PATCH` mapping allows updating selective fields. Providing an explicit `null` value for nullable fields (like `image`) clears them in the database, whereas omitting a field entirely keeps its existing value.
+
 * **Delete User**
   * **Method:** `DELETE`
   * **URL:** `http://localhost:8083/api/v1/users/{userId}` (Replace `{userId}` with UUID)

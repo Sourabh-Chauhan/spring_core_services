@@ -208,6 +208,70 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public UserDto patchUser(String userId, java.util.Map<String, Object> updates) {
+        if (updates == null) {
+            throw new IllegalArgumentException("Updates map cannot be null");
+        }
+
+        UUID userUuid;
+        try {
+            userUuid = UUID.fromString(userId);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid user ID format. It must be a valid UUID.");
+        }
+
+        User user = userRepository.findById(userUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        if (updates.containsKey("name")) {
+            String name = (String) updates.get("name");
+            if (name == null || name.trim().isEmpty()) {
+                throw new IllegalArgumentException("Name cannot be null or empty");
+            }
+            user.setName(name);
+        }
+
+        if (updates.containsKey("image")) {
+            String image = (String) updates.get("image");
+            user.setImage(image); // Can be set to null explicitly
+        }
+
+        if (updates.containsKey("password")) {
+            String password = (String) updates.get("password");
+            if (password == null || password.trim().isEmpty()) {
+                throw new IllegalArgumentException("Password cannot be null or empty");
+            }
+            user.setPassword(passwordEncoder.encode(password));
+            
+            // Publish PASSWORD_CHANGE event
+            String[] clientInfo = getRequestIpAndUserAgent();
+            eventPublisher.publishEvent(new AuditEvent(this, AppConstants.AUDIT_EVENT_PASSWORD_CHANGE, user.getEmail(), clientInfo[0], clientInfo[1], "Password updated via PATCH request"));
+        }
+
+        if (updates.containsKey("enable")) {
+            Object enableObj = updates.get("enable");
+            if (enableObj instanceof Boolean enableVal) {
+                user.setEnable(enableVal);
+            } else if (enableObj != null) {
+                user.setEnable(Boolean.parseBoolean(enableObj.toString()));
+            }
+        }
+
+        if (updates.containsKey("emailVerified")) {
+            Object emailVerifiedObj = updates.get("emailVerified");
+            if (emailVerifiedObj instanceof Boolean emailVerifiedVal) {
+                user.setEmailVerified(emailVerifiedVal);
+            } else if (emailVerifiedObj != null) {
+                user.setEmailVerified(Boolean.parseBoolean(emailVerifiedObj.toString()));
+            }
+        }
+
+        User updatedUser = userRepository.save(user);
+        return modelMapper.map(updatedUser, UserDto.class);
+    }
+
     private String[] getRequestIpAndUserAgent() {
         String ipAddress = "UNKNOWN";
         String userAgent = "UNKNOWN";

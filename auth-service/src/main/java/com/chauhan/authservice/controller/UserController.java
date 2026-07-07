@@ -62,6 +62,13 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    // PATCH /api/v1/users/{userId} - Partially update an existing user
+    @PatchMapping("/{userId}")
+    public ResponseEntity<UserDto> patchUser(@RequestBody java.util.Map<String, Object> updates, @PathVariable("userId") String userId) {
+        UserDto updatedUser = userService.patchUser(userId, updates);
+        return ResponseEntity.ok(updatedUser);
+    }
+
     // DELETE /api/v1/users/{userId} - Delete a user
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable("userId") String userId) {

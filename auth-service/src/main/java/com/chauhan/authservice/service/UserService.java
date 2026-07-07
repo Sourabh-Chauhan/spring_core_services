@@ -36,6 +36,14 @@ public interface UserService {
     UserDto updateUser(UserDto userDto, String userId);
 
     /**
+     * Partially updates an existing user's information.
+     * @param userId The ID of the user to update.
+     * @param updates A map of the fields to update.
+     * @return A DTO of the updated user.
+     */
+    UserDto patchUser(String userId, java.util.Map<String, Object> updates);
+
+    /**
      * Deletes a user from the system.
      * @param userId The ID of the user to delete.
      */
@@ -53,7 +61,4 @@ public interface UserService {
      * @return An iterable collection of user DTOs.
      */
     Iterable<UserDto> getAllUsers();
-
-    // TODO: The comment below is unprofessional and should be removed.
-    // user service se related __
 }

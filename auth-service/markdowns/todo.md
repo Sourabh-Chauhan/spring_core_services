@@ -69,12 +69,12 @@ This document lists the recommended security enhancements, bug fixes, and archit
 - **Remediation:** 
   - Annotate `sendVerificationEmail` and `sendPasswordResetEmail` in `EmailServiceImpl` with `@Async("taskExecutor")` to execute them asynchronously in the background.
 
-### 📐 Skip-Null-Fields Update Strategy
+### 📐 [x] Skip-Null-Fields Update Strategy (Fixed)
 - **File:** [UserServiceImpl.java](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/java/com/chauhan/authservice/service/impl/UserServiceImpl.java#L118-L174)
 - **Description:** 
-  The `updateUser` method skips null fields, preventing clients from clearing out optional attributes (e.g., removing a profile image URL by passing null).
+  The `updateUser` method skipped null fields, preventing clients from clearing out optional attributes (e.g., removing a profile image URL by passing null).
 - **Remediation:** 
-  - Transition to HTTP `PATCH` request models using distinct payload structures or wrapper classes (like `JsonNullable`) to distinguish between "not sent" and "explicitly set to null".
+  - [x] Implemented HTTP `PATCH` request model using a `Map<String, Object>` in [UserController.java](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/java/com/chauhan/authservice/controller/UserController.java) and `patchUser` in [UserServiceImpl.java](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/java/com/chauhan/authservice/service/impl/UserServiceImpl.java) to distinguish between "not sent" (key absent) and "explicitly set to null" (key present with null value).
 
 ---
 
