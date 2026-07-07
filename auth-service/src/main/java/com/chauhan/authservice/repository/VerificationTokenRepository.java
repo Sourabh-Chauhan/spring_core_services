@@ -14,4 +14,7 @@ public interface VerificationTokenRepository extends JpaRepository<VerificationT
     Optional<VerificationToken> findByUser(User user);
     
     void deleteByUser(User user);
+
+    @org.springframework.data.jpa.repository.Modifying
+    void deleteByExpiryDateBefore(java.time.Instant now);
 }

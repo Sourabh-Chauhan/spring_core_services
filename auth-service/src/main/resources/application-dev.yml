@@ -108,3 +108,7 @@ security:
     app-url: ${APP_URL:http://localhost:8082}
   password-reset:
     token-ttl-seconds: ${PASSWORD_RESET_TOKEN_TTL_SECONDS:900}
+
+app:
+  scheduling:
+    audit-log-retention-days: ${AUDIT_LOG_RETENTION_DAYS:30}

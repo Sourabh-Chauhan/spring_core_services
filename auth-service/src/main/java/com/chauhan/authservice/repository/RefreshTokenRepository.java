@@ -30,4 +30,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
     void revokeAllUserTokens(@Param("userId") UUID userId);
 
     java.util.List<RefreshToken> findByUser_IdAndRevokedFalseAndExpiresAtAfter(UUID userId, java.time.Instant now);
+
+    @Modifying
+    void deleteByExpiresAtBefore(java.time.Instant now);
 }

@@ -67,8 +67,8 @@ This checklist outlines the development goals for the authentication and authori
     - [ ] Refactor the email service to be asynchronous and decoupled using a message broker (e.g., Kafka or RabbitMQ).
 - [ ] **Rate Limiting:**
     - [ ] Implement rate limiting on sensitive endpoints like login and password reset.
-- [ ] **Scheduled Jobs:**
-    - [ ] Create a scheduled job to clean up expired tokens and old log entries.
+- [x] **Scheduled Jobs:**
+    - [x] Create a scheduled job to clean up expired tokens and old log entries.
 - [ ] **Observability:**
     - [ ] Configure Micrometer and Prometheus for metrics.
     - [ ] Set up Actuator health checks.

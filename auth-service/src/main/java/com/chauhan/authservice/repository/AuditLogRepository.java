@@ -7,4 +7,7 @@ import java.util.UUID;
 
 @Repository
 public interface AuditLogRepository extends JpaRepository<AuditLog, UUID> {
+    
+    @org.springframework.data.jpa.repository.Modifying
+    void deleteByTimestampBefore(java.time.Instant cutoff);
 }
