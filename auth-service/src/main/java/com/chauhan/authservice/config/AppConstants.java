@@ -34,4 +34,12 @@ public class AppConstants {
     public static final String ADMIN_ROLE = "ADMIN";
     public static final String GUEST_ROLE = "GUEST";
     public static final String USER_ROLE = "USER";
+
+    // Audit Event Types
+    public static final String AUDIT_EVENT_REGISTRATION = "REGISTRATION";
+    public static final String AUDIT_EVENT_LOGIN_SUCCESS = "LOGIN_SUCCESS";
+    public static final String AUDIT_EVENT_LOGIN_FAILURE = "LOGIN_FAILURE";
+    public static final String AUDIT_EVENT_PASSWORD_CHANGE = "PASSWORD_CHANGE";
+    public static final String AUDIT_EVENT_PASSWORD_RESET_REQUEST = "PASSWORD_RESET_REQUEST";
+    public static final String AUDIT_EVENT_EMAIL_VERIFIED = "EMAIL_VERIFIED";
 }

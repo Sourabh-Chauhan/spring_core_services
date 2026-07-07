@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.chauhan.authservice.event.AuditEvent;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.List;
 import java.util.UUID;
@@ -46,6 +48,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * Creates a new user. This method includes validation, password hashing, and setting default values.
@@ -149,6 +152,10 @@ public class UserServiceImpl implements UserService {
         // 4. Update Password (Only if provided and not empty)
         if (userDto.getPassword() != null && !userDto.getPassword().trim().isEmpty()) {
             user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+            
+            // Publish PASSWORD_CHANGE event
+            String[] clientInfo = getRequestIpAndUserAgent();
+            eventPublisher.publishEvent(new AuditEvent(this, AppConstants.AUDIT_EVENT_PASSWORD_CHANGE, user.getEmail(), clientInfo[0], clientInfo[1], "Password updated via user profile update"));
         }
 
         if (userDto.getProvider() != null) user.setProvider(userDto.getProvider());
@@ -199,5 +206,22 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll().stream()
                 .map(user -> modelMapper.map(user, UserDto.class))
                 .collect(Collectors.toList());
+    }
+
+    private String[] getRequestIpAndUserAgent() {
+        String ipAddress = "UNKNOWN";
+        String userAgent = "UNKNOWN";
+        try {
+            org.springframework.web.context.request.RequestAttributes attributes = 
+                org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();
+            if (attributes instanceof org.springframework.web.context.request.ServletRequestAttributes servletRequestAttributes) {
+                jakarta.servlet.http.HttpServletRequest request = servletRequestAttributes.getRequest();
+                ipAddress = request.getRemoteAddr();
+                userAgent = request.getHeader("User-Agent");
+            }
+        } catch (Exception e) {
+            // Fallback
+        }
+        return new String[]{ipAddress, userAgent};
     }
 }

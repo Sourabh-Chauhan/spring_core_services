@@ -60,9 +60,9 @@ This checklist outlines the development goals for the authentication and authori
     - [x] Use `@PreAuthorize` for method-level security.
 - [x] **Session Management:**
     - [x] Create endpoints to view and revoke user sessions.
-- [ ] **Auditing and Logging:**
-    - [ ] Implement audit logging for important events (e.g., login, password change).
-    - [ ] Use Spring Events for asynchronous logging.
+- [x] **Auditing and Logging:**
+    - [x] Implement audit logging for important events (e.g., login, password change).
+    - [x] Use Spring Events for asynchronous logging.
 - [ ] **Asynchronous Messaging & Decoupling:**
     - [ ] Refactor the email service to be asynchronous and decoupled using a message broker (e.g., Kafka or RabbitMQ).
 - [ ] **Rate Limiting:**

@@ -16,6 +16,13 @@ import com.chauhan.authservice.service.PasswordResetTokenService;
 import com.chauhan.authservice.service.UserService;
 import com.chauhan.authservice.service.VerificationTokenService;
 import com.chauhan.authservice.service.TokenBlacklistService;
+import com.chauhan.authservice.config.AppConstants;
+import com.chauhan.authservice.event.AuditEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,6 +50,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordResetTokenService passwordResetTokenService;
     private final PasswordEncoder passwordEncoder;
     private final TokenBlacklistService tokenBlacklistService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -58,6 +66,9 @@ public class AuthServiceImpl implements AuthService {
         // Send verification email
         emailService.sendVerificationEmail(user.getEmail(), verificationToken.getToken());
 
+        String[] clientInfo = getRequestIpAndUserAgent();
+        eventPublisher.publishEvent(new AuditEvent(this, AppConstants.AUDIT_EVENT_REGISTRATION, user.getEmail(), clientInfo[0], clientInfo[1], "User registered successfully"));
+
         return registeredUserDto;
     }
 
@@ -69,6 +80,7 @@ public class AuthServiceImpl implements AuthService {
                     new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password())
             );
         } catch (org.springframework.security.core.AuthenticationException e) {
+            eventPublisher.publishEvent(new AuditEvent(this, AppConstants.AUDIT_EVENT_LOGIN_FAILURE, loginRequest.email(), ipAddress, userAgent, "Authentication failed: " + e.getMessage()));
             throw new BadCredentialsException("Invalid Username or Password !!");
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -79,12 +91,15 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if (!authenticatedUser.isEmailVerified()) {
+            eventPublisher.publishEvent(new AuditEvent(this, AppConstants.AUDIT_EVENT_LOGIN_FAILURE, authenticatedUser.getEmail(), ipAddress, userAgent, "Login failed: Email is not verified"));
             throw new EmailNotVerifiedException("Email is not verified. Please check your inbox for verification link.");
         }
 
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(authenticatedUser, ipAddress, userAgent);
         String accessToken = jwtUtil.generateAccessToken(authenticatedUser, refreshToken.getJti());
         String refreshTokenString = jwtUtil.generateRefreshToken(authenticatedUser, refreshToken.getJti());
+
+        eventPublisher.publishEvent(new AuditEvent(this, AppConstants.AUDIT_EVENT_LOGIN_SUCCESS, authenticatedUser.getEmail(), ipAddress, userAgent, "User logged in successfully"));
 
         return TokenResponse.of(
                 accessToken,
@@ -135,6 +150,9 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
         
         tokenService.deleteToken(verificationToken);
+
+        String[] clientInfo = getRequestIpAndUserAgent();
+        eventPublisher.publishEvent(new AuditEvent(this, AppConstants.AUDIT_EVENT_EMAIL_VERIFIED, user.getEmail(), clientInfo[0], clientInfo[1], "Email verified successfully"));
     }
 
     @Override
@@ -159,6 +177,9 @@ public class AuthServiceImpl implements AuthService {
             User user = userOpt.get();
             PasswordResetToken token = passwordResetTokenService.createTokenForUser(user);
             emailService.sendPasswordResetEmail(user.getEmail(), token.getToken());
+
+            String[] clientInfo = getRequestIpAndUserAgent();
+            eventPublisher.publishEvent(new AuditEvent(this, AppConstants.AUDIT_EVENT_PASSWORD_RESET_REQUEST, user.getEmail(), clientInfo[0], clientInfo[1], "Password reset requested"));
         }
     }
 
@@ -170,5 +191,24 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
         passwordResetTokenService.deleteToken(resetToken);
+
+        String[] clientInfo = getRequestIpAndUserAgent();
+        eventPublisher.publishEvent(new AuditEvent(this, AppConstants.AUDIT_EVENT_PASSWORD_CHANGE, user.getEmail(), clientInfo[0], clientInfo[1], "Password reset successfully using token"));
+    }
+
+    private String[] getRequestIpAndUserAgent() {
+        String ipAddress = "UNKNOWN";
+        String userAgent = "UNKNOWN";
+        try {
+            RequestAttributes attributes =  RequestContextHolder.getRequestAttributes();
+            if (attributes instanceof ServletRequestAttributes servletRequestAttributes) {
+                HttpServletRequest request = servletRequestAttributes.getRequest();
+                ipAddress = request.getRemoteAddr();
+                userAgent = request.getHeader("User-Agent");
+            }
+        } catch (Exception e) {
+            // Fallback
+        }
+        return new String[]{ipAddress, userAgent};
     }
 }

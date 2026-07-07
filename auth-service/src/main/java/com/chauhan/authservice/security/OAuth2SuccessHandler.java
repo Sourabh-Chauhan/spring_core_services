@@ -12,6 +12,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import com.chauhan.authservice.event.AuditEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -41,6 +43,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final RefreshTokenService refreshTokenService;
     private final CookieUtilService cookieUtilService;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -140,6 +143,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 3. Attach Refresh Token Cookie
         cookieUtilService.attachRefreshCookie(response, refreshTokenString, (int) jwtUtil.getRefreshTtlSeconds());
         cookieUtilService.addNoStoreHeaders(response);
+
+        // Publish audit event for successful OAuth2 login
+        eventPublisher.publishEvent(new AuditEvent(this, AppConstants.AUDIT_EVENT_LOGIN_SUCCESS, user.getEmail(), ipAddress, userAgent, "OAuth2 login successful via provider: " + clientRegistrationId));
 
         // 4. Redirect user to frontend app
         String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/oauth2/redirect")
