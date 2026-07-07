@@ -50,11 +50,18 @@ spring:
           starttls:
             enable: false
 
+  # Flyway configuration
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+
   # JPA and Hibernate settings
   jpa:
     hibernate:
-      # Automatically update the database schema on startup for development
-      ddl-auto: update
+      # Automatically validate the database schema on startup
+      ddl-auto: validate
     properties:
       hibernate:
         # Explicitly set the dialect for PostgreSQL

@@ -9,7 +9,7 @@ This checklist outlines the development goals for the authentication and authori
     - [x] Create the `auth-service` module.
 - [x] **Entities and Database:**
     - [x] Implement `User`, `Role`, and `Permission` entities.
-    - [ ] Set up Flyway for database migrations and create the initial schema.
+    - [x] Set up Flyway for database migrations and create the initial schema.
 - [x] **Registration:**
     - [x] Create `POST /auth/register` endpoint.
     - [x] Implement validation for email, password strength, and uniqueness.
