@@ -21,9 +21,9 @@ This checklist tracks the implementation and verification goals for the centrali
 - [x] **Dynamic Routing Rules:**
     - [x] Define route `/api/v1/auth/**`, `/api/v1/admin/**`, and `/api/v1/sessions/**` forwarding to `lb://auth-service`.
     - [x] Define route `/api/v1/users/**` forwarding to `lb://user-service`.
-- [ ] **Global CORS Configuration:**
-    - [ ] Configure central CORS rules in `application.yml` targeting `[/**]` to allow frontend domain (`http://localhost:3000`).
-    - [ ] Enable `allowCredentials: true` and configure allowed headers/methods.
+- [x] **Global CORS Configuration:**
+    - [x] Configure central CORS rules in `application.yml` targeting `[/**]` to allow frontend domain (`http://localhost:3000`).
+    - [x] Enable `allowCredentials: true` and configure allowed headers/methods.
 
 ## Phase 3: Centralized Security & Header Injection
 

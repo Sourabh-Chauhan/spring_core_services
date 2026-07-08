@@ -17,9 +17,6 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -58,31 +55,12 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    /**
-     * Production-ready CORS configuration.
-     * Defines exactly which origins, methods, and headers are allowed.
-     */
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        // Allow your frontend origins here (e.g., http://localhost:3000, https://myapp.com)
-        configuration.setAllowedOrigins(List.of("*")); // WARNING: Change '*' to specific origins in production!
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
-        configuration.setExposedHeaders(List.of("Authorization")); // If the frontend needs to read headers sent back
-        configuration.setAllowCredentials(false); // Set to true if you are using cookies/session IDs (usually false for pure JWT)
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Apply this policy to all endpoints
-        return source;
-    }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             // 1. Core security configurations
             .csrf(AbstractHttpConfigurer::disable) // Disabled because we use stateless JWTs, not session cookies
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Explicit, strict CORS policy
+            .cors(AbstractHttpConfigurer::disable) // Disable CORS downstream as it is handled by the API Gateway perimeter
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No server-side sessions
 
             // 2. Exception Handling (Delegated to custom beans for clarity and testability)
