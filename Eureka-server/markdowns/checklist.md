@@ -11,19 +11,19 @@ This checklist tracks the setup, configuration, and verification tasks for the c
     - [x] Remove redundant `groupId` and `version` fields.
     - [x] Remove duplicate properties (`java.version`, `spring-cloud.version`).
     - [x] Remove redundant `<dependencyManagement>` section.
-- [ ] **Dependencies:**
-    - [ ] Ensure `spring-cloud-starter-netflix-eureka-server` dependency is declared correctly.
+- [x] **Dependencies:**
+    - [x] Ensure `spring-cloud-starter-netflix-eureka-server` dependency is declared correctly.
 
 ## Phase 2: Server Coding & Properties Configuration
 
-- [ ] **Main Application class:**
-    - [ ] Create the runner class under `com.chauhan.eurekaserver.EurekaServerApplication`.
-    - [ ] Add `@EnableEurekaServer` annotation.
-- [ ] **Application Configuration:**
-    - [ ] Create `application.yml` inside the resource directory (`src/main/resources`).
-    - [ ] Set server port to `8761`.
-    - [ ] Set `register-with-eureka: false` to disable self-registration.
-    - [ ] Set `fetch-registry: false` to disable standalone registry downloads.
+- [x] **Main Application class:**
+    - [x] Create the runner class under `com.chauhan.eurekaserver.EurekaServerApplication`.
+    - [x] Add `@EnableEurekaServer` annotation.
+- [x] **Application Configuration:**
+    - [x] Create `application.yml` inside the resource directory (`src/main/resources`).
+    - [x] Set server port to `8761`.
+    - [x] Set `register-with-eureka: false` to disable self-registration.
+    - [x] Set `fetch-registry: false` to disable standalone registry downloads.
 
 ## Phase 3: Client Discovery Integration
 
