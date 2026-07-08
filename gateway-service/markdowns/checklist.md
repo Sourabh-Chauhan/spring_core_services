@@ -27,19 +27,19 @@ This checklist tracks the implementation and verification goals for the centrali
 
 ## Phase 3: Centralized Security & Header Injection
 
-- [ ] **JWT Utility:**
-    - [ ] Implement `JwtUtil` in the gateway service to parse claims (JTI, User ID, Email, Roles) and validate signatures.
-- [ ] **JWT Validation Filter:**
-    - [ ] Create custom `JwtValidationFilter` extending `AbstractGatewayFilterFactory`.
-    - [ ] Extract bearer token from the `Authorization` header.
-    - [ ] Validate signature and expiration status.
-- [ ] **Shared Redis Blacklist Integration:**
-    - [ ] Read `blacklist:<jti>` from Reactive Redis in `JwtValidationFilter` to check token revocation.
-- [ ] **Header Injection (Token Relay):**
-    - [ ] Mutate downstream requests to inject validated details:
-        - [ ] `X-User-Id`
-        - [ ] `X-User-Email`
-        - [ ] `X-User-Roles`
+- [x] **JWT Utility:**
+    - [x] Implement `JwtUtil` in the gateway service to parse claims (JTI, User ID, Email, Roles) and validate signatures.
+- [x] **JWT Validation Filter:**
+    - [x] Create custom `JwtValidationFilter` extending `AbstractGatewayFilterFactory`.
+    - [x] Extract bearer token from the `Authorization` header.
+    - [x] Validate signature and expiration status.
+- [x] **Shared Redis Blacklist Integration:**
+    - [x] Read `blacklist:<jti>` from Reactive Redis in `JwtValidationFilter` to check token revocation.
+- [x] **Header Injection (Token Relay):**
+    - [x] Mutate downstream requests to inject validated details:
+        - [x] `X-User-Id`
+        - [x] `X-User-Email`
+        - [x] `X-User-Roles`
 - [ ] **Security Config:**
     - [ ] Configure `SecurityWebFilterChain` (Spring Security Reactive) to permit public routes and validate authentication on others.
 

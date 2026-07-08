@@ -39,11 +39,13 @@ spring:
           predicates:
             - Path=/api/v1/auth/**, /api/v1/admin/**, /api/v1/sessions/**
 
-        # Route to User Service (will require JwtValidationFilter in the future)
+        # Route to User Service
         - id: user-service
           uri: lb://user-service
           predicates:
             - Path=/api/v1/users/**
+          filters:
+            - JwtValidationFilter
 
 # Eureka client configuration for service discovery
 eureka:
@@ -54,3 +56,11 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: true
+
+# Security configuration properties
+security:
+  jwt:
+    secret: ${JWT_SECRET:saiofal;vkasfbehwqpofhjashofjaswfpojasfvbafop[hfifonfo[shjfwefjjfslajfsahfoshffasnbash[f}
+    issuer: ${JWT_ISSUER:api.substring.com}
+    access-ttl-seconds: ${JWT_ACCESS_TTL_SECONDS:3000}
+    refresh-ttl-seconds: ${JWT_REFRESH_TTL_SECONDS:86400}
