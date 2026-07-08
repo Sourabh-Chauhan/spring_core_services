@@ -40,8 +40,8 @@ This checklist tracks the implementation and verification goals for the centrali
         - [x] `X-User-Id`
         - [x] `X-User-Email`
         - [x] `X-User-Roles`
-- [ ] **Security Config:**
-    - [ ] Configure `SecurityWebFilterChain` (Spring Security Reactive) to permit public routes and validate authentication on others.
+- [x] **Security Config:**
+    - [x] Configure `SecurityWebFilterChain` (Spring Security Reactive) to permit public routes and validate authentication on others.
 
 ## Phase 4: Edge Rate Limiting & Error Handling
 
