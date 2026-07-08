@@ -5,7 +5,7 @@ This checklist outlines the development goals for the authentication and authori
 ## Phase 1: Core Password-Based Authentication
 
 - [x] **Project Setup:**
-    - [ ] Initialize a multi-module Maven project with a parent `pom.xml`.
+    - [x] Initialize a multi-module Maven project with a parent `pom.xml`.
     - [x] Create the `auth-service` module.
 - [x] **Entities and Database:**
     - [x] Implement `User`, `Role`, and `Permission` entities.
