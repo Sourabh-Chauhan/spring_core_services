@@ -5,14 +5,14 @@ This checklist tracks the implementation and verification goals for the centrali
 ## Phase 1: Project Setup & Service Discovery
 
 - [ ] **Dependencies Setup:**
-    - [ ] Add `spring-cloud-starter-gateway-server-webflux` to `gateway-service/pom.xml`.
-    - [ ] Add `spring-cloud-starter-netflix-eureka-client` for service discovery.
+    - [x] Add `spring-cloud-starter-gateway-server-webflux` to `gateway-service/pom.xml`.
+    - [x] Add `spring-cloud-starter-netflix-eureka-client` for service discovery.
     - [ ] Add `spring-boot-starter-data-redis-reactive` for rate limiting and blacklist lookup.
     - [ ] Add JSON Web Token dependencies (`jjwt-api`, `jjwt-impl`, `jjwt-jackson`).
-- [ ] **Eureka Integration:**
-    - [ ] Add `@EnableDiscoveryClient` to the Gateway main application class.
-    - [ ] Configure `eureka.client.service-url.defaultZone` in `application.yml`.
-    - [ ] Uncomment/enable Eureka client settings in `auth-service/src/main/resources/application-dev.yml`.
+- [x] **Eureka Integration:**
+    - [x] Add `@EnableDiscoveryClient` to the Gateway main application class.
+    - [x] Configure `eureka.client.service-url.defaultZone` in `application.yml`.
+    - [x] Uncomment/enable Eureka client settings in `auth-service/src/main/resources/application-dev.yml`.
 - [ ] **Redis Connection:**
     - [ ] Configure Redis connection details (`host`, `port`) in `application.yml`.
 

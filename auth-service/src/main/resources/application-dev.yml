@@ -72,15 +72,17 @@ spring:
     show-sql: true
 
 # Eureka client configuration for service discovery
-#eureka:
-#  client:
-#    # URL of the Eureka server
-#    service-url:
-#      defaultZone: http://localhost:8761/eureka/
-#    # Fetch the registry information from the Eureka server
-#    fetch-registry: true
-#    # Register this instance with the Eureka server
-#    register-with-eureka: true
+eureka:
+  client:
+    # URL of the Eureka server
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    # Fetch the registry information from the Eureka server
+    fetch-registry: true
+    # Register this instance with the Eureka server
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
 
 # JWT (JSON Web Token) settings - replace with your actual secret and expiration
 #jwt:

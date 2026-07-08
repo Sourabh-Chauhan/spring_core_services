@@ -27,12 +27,12 @@ This checklist tracks the setup, configuration, and verification tasks for the c
 
 ## Phase 3: Client Discovery Integration
 
-- [ ] **Auth-Service Connection:**
-    - [ ] Add Eureka Client dependency in `auth-service/pom.xml`.
-    - [ ] Enable client registry properties in `auth-service/src/main/resources/application-dev.yml`.
-- [ ] **Gateway-Service Connection:**
-    - [ ] Add Eureka Client dependency in `gateway-service/pom.xml`.
-    - [ ] Enable client properties inside the gateway's `application.yml`.
+- [x] **Auth-Service Connection:**
+    - [x] Add Eureka Client dependency in `auth-service/pom.xml`.
+    - [x] Enable client registry properties in `auth-service/src/main/resources/application-dev.yml`.
+- [x] **Gateway-Service Connection:**
+    - [x] Add Eureka Client dependency in `gateway-service/pom.xml`.
+    - [x] Enable client properties inside the gateway's `application.yml`.
 
 ## Phase 4: Runtime Verification
 
