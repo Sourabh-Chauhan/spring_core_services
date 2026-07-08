@@ -5,6 +5,13 @@ spring:
   application:
     name: gateway-service
 
+  # Redis connection configuration
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
+      password: ${SPRING_REDIS_PASSWORD:}
+
   cloud:
     gateway:
       discovery:

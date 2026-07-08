@@ -4,23 +4,23 @@ This checklist tracks the implementation and verification goals for the centrali
 
 ## Phase 1: Project Setup & Service Discovery
 
-- [ ] **Dependencies Setup:**
+- [x] **Dependencies Setup:**
     - [x] Add `spring-cloud-starter-gateway-server-webflux` to `gateway-service/pom.xml`.
     - [x] Add `spring-cloud-starter-netflix-eureka-client` for service discovery.
-    - [ ] Add `spring-boot-starter-data-redis-reactive` for rate limiting and blacklist lookup.
-    - [ ] Add JSON Web Token dependencies (`jjwt-api`, `jjwt-impl`, `jjwt-jackson`).
+    - [x] Add `spring-boot-starter-data-redis-reactive` for rate limiting and blacklist lookup.
+    - [x] Add JSON Web Token dependencies (`jjwt-api`, `jjwt-impl`, `jjwt-jackson`).
 - [x] **Eureka Integration:**
     - [x] Add `@EnableDiscoveryClient` to the Gateway main application class.
     - [x] Configure `eureka.client.service-url.defaultZone` in `application.yml`.
     - [x] Uncomment/enable Eureka client settings in `auth-service/src/main/resources/application-dev.yml`.
-- [ ] **Redis Connection:**
-    - [ ] Configure Redis connection details (`host`, `port`) in `application.yml`.
+- [x] **Redis Connection:**
+    - [x] Configure Redis connection details (`host`, `port`) in `application.yml`.
 
 ## Phase 2: Edge Routing & CORS
 
-- [ ] **Dynamic Routing Rules:**
-    - [ ] Define route `/api/v1/auth/**`, `/api/v1/admin/**`, and `/api/v1/sessions/**` forwarding to `lb://auth-service`.
-    - [ ] Define route `/api/v1/users/**` forwarding to `lb://user-service`.
+- [x] **Dynamic Routing Rules:**
+    - [x] Define route `/api/v1/auth/**`, `/api/v1/admin/**`, and `/api/v1/sessions/**` forwarding to `lb://auth-service`.
+    - [x] Define route `/api/v1/users/**` forwarding to `lb://user-service`.
 - [ ] **Global CORS Configuration:**
     - [ ] Configure central CORS rules in `application.yml` targeting `[/**]` to allow frontend domain (`http://localhost:3000`).
     - [ ] Enable `allowCredentials: true` and configure allowed headers/methods.

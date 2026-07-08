@@ -36,8 +36,8 @@ This checklist tracks the setup, configuration, and verification tasks for the c
 
 ## Phase 4: Runtime Verification
 
-- [ ] **Dashboard Check:**
-    - [ ] Run `Eureka-server` and verify access to UI dashboard on `http://localhost:8761`.
-- [ ] **Service Discovery Verification:**
-    - [ ] Run `auth-service` and verify it registers with Eureka dashboard under the `AUTH-SERVICE` ID.
-    - [ ] Run `gateway-service` and verify it registers and can route calls to `lb://auth-service/`.
+- [x] **Dashboard Check:**
+    - [x] Run `Eureka-server` and verify access to UI dashboard on `http://localhost:8761`.
+- [x] **Service Discovery Verification:**
+    - [x] Run `auth-service` and verify it registers with Eureka dashboard under the `AUTH-SERVICE` ID.
+    - [x] Run `gateway-service` and verify it registers and can route calls to `lb://auth-service/`.
