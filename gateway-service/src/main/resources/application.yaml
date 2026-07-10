@@ -40,6 +40,12 @@ spring:
               uri: lb://auth-service
               predicates:
                 - Path=/api/v1/auth/**,/api/v1/admin/**,/api/v1/sessions/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 20
+                    key-resolver: "#{@ipKeyResolver}"
 
             # Route to User Service
             - id: user-service
@@ -48,6 +54,11 @@ spring:
                 - Path=/api/v1/users/**
               filters:
                 - JwtValidationFilter
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 20
+                    key-resolver: "#{@ipKeyResolver}"
 # Eureka client configuration for service discovery
 eureka:
   client:
