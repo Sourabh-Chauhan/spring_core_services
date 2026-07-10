@@ -53,7 +53,7 @@ spring:
 
             # Route to User Service
             - id: user-service
-              uri: lb://user-service
+              uri: lb://auth-service
               predicates:
                 - Path=/api/v1/users/**
               filters:
@@ -63,6 +63,12 @@ spring:
                     redis-rate-limiter.replenishRate: 10
                     redis-rate-limiter.burstCapacity: 20
                     key-resolver: "#{@ipKeyResolver}"
+                - name: Retry
+                  args:
+                    retries: 3
+                    methods: GET
+                    series: SERVER_ERROR
+                    exceptions: java.io.IOException, java.util.concurrent.TimeoutException
                 - name: CircuitBreaker
                   args:
                     name: userServiceCircuitBreaker

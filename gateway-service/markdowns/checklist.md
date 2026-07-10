@@ -54,6 +54,10 @@ This checklist tracks the implementation and verification goals for the centrali
     - [x] Configure Resilience4j settings (time limit, sliding window size, failure rate threshold).
     - [x] Bind the `CircuitBreaker` filter with custom fallback URIs to routes in `application.yaml`.
     - [x] Implement fallback controllers to return standardized fallback JSON payloads when downstream services fail.
+- [x] **Retry Configuration (Fault Tolerance):**
+    - [x] Add the `Retry` filter to the `user-service` route in `application.yaml`.
+    - [x] Restrict retries to safe `GET` requests only.
+    - [x] Configure to retry on `SERVER_ERROR` series (5xx errors) and timeouts up to 3 times.
 - [ ] **Global Exception Handler:**
     - [ ] Implement a custom error handler to return standardized JSON responses on:
         - [ ] `401 Unauthorized` (invalid/expired JWT, blacklisted token).
