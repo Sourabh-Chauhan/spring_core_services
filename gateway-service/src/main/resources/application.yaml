@@ -14,39 +14,40 @@ spring:
 
   cloud:
     gateway:
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
       discovery:
         locator:
-          enabled: true
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowedOrigins: "http://localhost:3000"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - PATCH
-              - DELETE
-              - OPTIONS
-            allowedHeaders: "*"
-            allowCredentials: true
-      routes:
-        # Route to Auth Service
-        - id: auth-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/api/v1/auth/**, /api/v1/admin/**, /api/v1/sessions/**
+          enabled: false
+      server:
+        webflux:
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOriginPatterns: "*"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - PATCH
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders: "*"
+                allowCredentials: true
+          routes:
+            # Route to Auth Service
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/v1/auth/**,/api/v1/admin/**,/api/v1/sessions/**
 
-        # Route to User Service
-        - id: user-service
-          uri: lb://user-service
-          predicates:
-            - Path=/api/v1/users/**
-          filters:
-            - JwtValidationFilter
-
+            # Route to User Service
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/v1/users/**
+              filters:
+                - JwtValidationFilter
 # Eureka client configuration for service discovery
 eureka:
   client:
@@ -62,5 +63,15 @@ security:
   jwt:
     secret: ${JWT_SECRET:saiofal;vkasfbehwqpofhjashofjaswfpojasfvbafop[hfifonfo[shjfwefjjfslajfsahfoshffasnbash[f}
     issuer: ${JWT_ISSUER:api.substring.com}
-    access-ttl-seconds: ${JWT_ACCESS_TTL_SECONDS:3000}
-    refresh-ttl-seconds: ${JWT_REFRESH_TTL_SECONDS:86400}
+
+# Logging configuration
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    org.springframework.web.reactive.DispatcherHandler: INFO
+    org.springframework.security: INFO
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway
