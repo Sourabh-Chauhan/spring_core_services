@@ -60,6 +60,20 @@ public class GlobalExceptionHandler implements WebExceptionHandler {
             errorName = "Forbidden";
             message = "Access Denied: You do not have permissions to access this resource.";
         }
+        // 4. Handle HttpStatusCodeException (e.g. HttpClientErrorException.TooManyRequests)
+        else if (ex instanceof org.springframework.web.client.HttpStatusCodeException) {
+            org.springframework.web.client.HttpStatusCodeException hsce = (org.springframework.web.client.HttpStatusCodeException) ex;
+            status = hsce.getStatusCode();
+            message = hsce.getStatusText();
+            if (status == HttpStatus.TOO_MANY_REQUESTS) {
+                errorName = "Too Many Requests";
+                message = "Rate limit exceeded. Please try again later.";
+            } else if (status == HttpStatus.UNAUTHORIZED) {
+                errorName = "Unauthorized";
+            } else if (status == HttpStatus.FORBIDDEN) {
+                errorName = "Forbidden";
+            }
+        }
 
         response.setStatusCode(status);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
