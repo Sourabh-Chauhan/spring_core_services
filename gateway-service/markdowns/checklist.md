@@ -43,12 +43,17 @@ This checklist tracks the implementation and verification goals for the centrali
 - [x] **Security Config:**
     - [x] Configure `SecurityWebFilterChain` (Spring Security Reactive) to permit public routes and validate authentication on others.
 
-## Phase 4: Edge Rate Limiting & Error Handling
+## Phase 4: Edge Rate Limiting, Resiliency & Error Handling
 
-- [ ] **Rate Limiter Configuration:**
-    - [ ] Implement the `ipKeyResolver` bean to identify users by remote IP address.
-    - [ ] Bind the `RequestRateLimiter` filter to the Gateway routes.
-    - [ ] Configure appropriate `replenishRate` and `burstCapacity` parameters.
+- [x] **Rate Limiter Configuration:**
+    - [x] Implement the `ipKeyResolver` bean to identify users by remote IP address.
+    - [x] Bind the `RequestRateLimiter` filter to the Gateway routes.
+    - [x] Configure appropriate `replenishRate` and `burstCapacity` parameters.
+- [x] **Circuit Breaker Configuration (Resiliency):**
+    - [x] Add Resilience4j dependency to `gateway-service/pom.xml`.
+    - [x] Configure Resilience4j settings (time limit, sliding window size, failure rate threshold).
+    - [x] Bind the `CircuitBreaker` filter with custom fallback URIs to routes in `application.yaml`.
+    - [x] Implement fallback controllers to return standardized fallback JSON payloads when downstream services fail.
 - [ ] **Global Exception Handler:**
     - [ ] Implement a custom error handler to return standardized JSON responses on:
         - [ ] `401 Unauthorized` (invalid/expired JWT, blacklisted token).
