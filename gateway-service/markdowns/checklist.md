@@ -58,11 +58,11 @@ This checklist tracks the implementation and verification goals for the centrali
     - [x] Add the `Retry` filter to the `user-service` route in `application.yaml`.
     - [x] Restrict retries to safe `GET` requests only.
     - [x] Configure to retry on `SERVER_ERROR` series (5xx errors) and timeouts up to 3 times.
-- [ ] **Global Exception Handler:**
-    - [ ] Implement a custom error handler to return standardized JSON responses on:
-        - [ ] `401 Unauthorized` (invalid/expired JWT, blacklisted token).
-        - [ ] `403 Forbidden` (invalid permissions).
-        - [ ] `429 Too Many Requests` (rate limited).
+- [x] **Global Exception Handler:**
+    - [x] Implement a custom error handler to return standardized JSON responses on:
+        - [x] `401 Unauthorized` (invalid/expired JWT, blacklisted token).
+        - [x] `403 Forbidden` (invalid permissions).
+        - [x] `429 Too Many Requests` (rate limited).
 
 ## Phase 5: Testing & Production Hardening
 
