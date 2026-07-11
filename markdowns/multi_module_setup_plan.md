@@ -1,4 +1,3 @@
-# Implementation Plan: Parent POM & Multi-Module Project Setup
 
 This plan outlines the steps to refactor the standalone microservices (`auth-service` and `gateway-service`) into a single, unified **multi-module Maven project** managed by a root parent `pom.xml`.
 

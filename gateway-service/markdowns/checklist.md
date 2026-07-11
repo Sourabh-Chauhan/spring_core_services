@@ -76,3 +76,15 @@ This checklist tracks the implementation and verification goals for the centrali
 - [ ] **Containerization:**
     - [ ] Create a `Dockerfile` for the `gateway-service`.
     - [ ] Add `gateway-service` and Eureka Server configurations to local `docker-compose.yml`.
+
+## Phase 6: Asynchronous Messaging & Decoupling
+
+- [ ] **Asynchronous Messaging & Decoupling:**
+    - [ ] Add RabbitMQ message broker container to local Docker configuration.
+    - [ ] Add RabbitMQ AMQP dependencies to `auth-service` and configure publishing events.
+    - [ ] Create standalone `notification-service` microservice module.
+    - [ ] Implement RabbitMQ event listener in `notification-service` to consume `user.registered` messages.
+    - [ ] Integrate JavaMailSender in `notification-service` to process email sending asynchronously.
+    - [ ] Integrate Twilio SMS SDK in `notification-service` to process SMS sending asynchronously.
+    - [ ] Integrate Firebase Admin SDK for Push Notifications (FCM).
+    - [ ] Implement Webhook subscription lookup and HTTP POST callback mechanism with HMAC verification.

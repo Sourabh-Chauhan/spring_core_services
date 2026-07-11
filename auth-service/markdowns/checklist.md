@@ -64,9 +64,9 @@ This checklist outlines the development goals for the authentication and authori
     - [x] Implement audit logging for important events (e.g., login, password change).
     - [x] Use Spring Events for asynchronous logging.
 - [ ] **Asynchronous Messaging & Decoupling:**
-    - [ ] Refactor the email service to be asynchronous and decoupled using a message broker (e.g., Kafka or RabbitMQ).
-- [ ] **Rate Limiting:**
-    - [ ] Implement rate limiting on sensitive endpoints like login and password reset.
+    - [ ] Refactor email/SMS tasks to publish events to RabbitMQ, handled by a dedicated `notification-service` (detailed in [notification_service_design_plan.md](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/markdowns/notification_service_design_plan.md)).
+- [x] **Rate Limiting:**
+    - [x] Implement rate limiting on sensitive endpoints (Implemented at API Gateway edge via RequestRateLimiter).
 - [x] **Scheduled Jobs:**
     - [x] Create a scheduled job to clean up expired tokens and old log entries.
 - [ ] **Observability:**

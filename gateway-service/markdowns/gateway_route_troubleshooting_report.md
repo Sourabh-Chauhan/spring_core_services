@@ -1,6 +1,6 @@
-# API Gateway Routing: Diagnostics & Resolution Report
+# API Gateway Routing & Resiliency: Diagnostics & Resolution Report
 
-This document consolidates the troubleshooting, diagnostics, and final resolutions for the API Gateway routing and filter implementation.
+This document consolidates the troubleshooting, diagnostics, and final resolutions for the API Gateway routing, rate-limiting, and error-handling implementations.
 
 ---
 
@@ -74,9 +74,9 @@ In the version of Spring Cloud Gateway resolved on the classpath (Spring Cloud 2
 
 ---
 
-## 4. Final Resolutions
+## 4. Final Routing Namespace Resolution
 
-### A. Namespace Configuration Update
+### Namespace Configuration Update
 We restored default YAML routing by wrapping `routes`, `default-filters`, and `globalcors` under the correct namespace prefix:
 ```yaml
 spring:
@@ -89,22 +89,16 @@ spring:
           globalcors:
             cors-configurations:
               '[/**]':
-                allowedOrigins: "*"
+                allowedOriginPatterns: "*"
                 allowedMethods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
           routes:
             - id: auth-service
               uri: lb://auth-service
               predicates:
                 - Path=/api/v1/auth/**,/api/v1/admin/**,/api/v1/sessions/**
-            - id: user-service
-              uri: lb://user-service
-              predicates:
-                - Path=/api/v1/users/**
-              filters:
-                - JwtValidationFilter
 ```
 
-### B. Global Logging Filter Implementation
+### Global Logging Filter Implementation
 To output request routes and their downstream physical destinations, we registered a custom global `LoggingFilter`:
 ```java
 @Component
@@ -132,3 +126,82 @@ public class LoggingFilter implements GlobalFilter, Ordered {
 ```
 * **Output:**
   `INFO --- c.c.gatewayservice.filter.LoggingFilter : Gateway Route matched - ID: 'auth-service', Request Path: '/api/v1/auth/login' -> Forwarded to: 'http://192.168.1.16:8082/api/v1/auth/login'`
+
+---
+
+## 5. User Service Route Resolution (503 Service Unavailable)
+
+### The Issue
+Requests sent to `/api/v1/users` failed with a `503 Service Unavailable` response. The logs showed the `userServiceCircuitBreaker` tripping and routing requests to the local user fallback controller.
+
+### Root Cause
+In the initial setup, the Gateway was configured to route requests matching `/api/v1/users/**` to `uri: lb://user-service`. 
+* However, in this project structure, the user controllers (`UserController.java`) reside inside the `auth-service` module.
+* There was no separate `USER-SERVICE` registered on Eureka, causing load balancer lookup failures.
+
+### Resolution
+We updated [application.yaml](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/gateway-service/src/main/resources/application.yaml) to target the active `auth-service` instances for the `user-service` route ID while preserving token validation:
+```yaml
+            # Route to User Service (Hosted within auth-service)
+            - id: user-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/v1/users/**
+              filters:
+                - JwtValidationFilter
+```
+
+---
+
+## 6. Centralized Error Mapping Resolution (500 instead of 429)
+
+### The Issue
+During rate limit verification, requests exceeding the limits returned a `500 Internal Server Error` instead of a standard `429 Too Many Requests`. The response body incorrectly wrapped the rate limit message:
+```json
+{
+    "status": 500,
+    "error": "Internal Server Error",
+    "message": "429 Too Many Requests",
+    "path": "/api/v1/users/email/admin@company.com"
+}
+```
+
+### Root Cause
+With `throw-on-limit: true` enabled in the gateway rate limit arguments, the `RequestRateLimiter` throws an instance of `org.springframework.web.client.HttpClientErrorException.TooManyRequests`.
+* `HttpClientErrorException` is a subclass of `HttpStatusCodeException`, not `ResponseStatusException`.
+* The reactive `GlobalExceptionHandler` was only trapping `ResponseStatusException`, causing rate-limit client errors to fall through and get mapped as generic internal server errors (500).
+
+### Resolution
+We refactored `GlobalExceptionHandler.java` to catch `HttpStatusCodeException` and extract its status code and details correctly:
+```java
+        // Handle HttpStatusCodeException (e.g. HttpClientErrorException.TooManyRequests)
+        else if (ex instanceof org.springframework.web.client.HttpStatusCodeException) {
+            org.springframework.web.client.HttpStatusCodeException hsce = (org.springframework.web.client.HttpStatusCodeException) ex;
+            status = hsce.getStatusCode();
+            message = hsce.getStatusText();
+            if (status == HttpStatus.TOO_MANY_REQUESTS) {
+                errorName = "Too Many Requests";
+                message = "Rate limit exceeded. Please try again later.";
+            }
+        }
+```
+Requests exceeding the rate limits now correctly return a standardized `429 Too Many Requests` status code and JSON payload.
+
+---
+
+## 7. Gateway Properties Audit & Optimization
+
+### A. Remove Redundant JWT properties
+* **Finding:** The properties `security.jwt.access-ttl-seconds` and `security.jwt.refresh-ttl-seconds` were configured in the Gateway's `application.yaml`.
+* **Rationale:** The Gateway only validates existing access tokens and extracts claims (`JwtUtil` and `JwtValidationFilter`). Token generation and expiration handling (which require TTL properties) are managed exclusively by the downstream `auth-service`.
+* **Action:** Removed `security.jwt.access-ttl-seconds` and `security.jwt.refresh-ttl-seconds` from the Gateway configuration to prevent clutter.
+
+### B. Correct CORS Wildcard Conflict
+* **Finding:** `allowedOrigins: "*"` was configured alongside `allowCredentials: true` under `globalcors`.
+* **Rationale:** Under W3C CORS specifications, browsers reject credentialed requests (containing cookies, authorization headers) targeting the literal wildcard `*`.
+* **Action:** Replaced `allowedOrigins: "*"` with `allowedOriginPatterns: "*"`. This resolves the browser-side CORS conflict while keeping the gateway permissive for development.
+
+### C. Clean Up Debug Logging
+* **Finding:** TRACE logging was enabled for `org.springframework.cloud.gateway` and `org.springframework.web.reactive.DispatcherHandler`.
+* **Rationale:** While useful during initial routing setup, trace logging outputs massive debug text for every request, cluttering local console outputs.
+* **Action:** Restored standard logging levels to `INFO` for standard operations.
