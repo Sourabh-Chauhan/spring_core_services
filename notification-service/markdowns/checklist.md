@@ -47,13 +47,13 @@ This checklist tracks the step-by-step development and integration of the decoup
   - [x] Create `NotificationDispatcher` component to route payloads based on user preferences.
   - [x] **Channel 1: Email Notification Channel**
     - [x] Implement `EmailNotificationChannel` using `JavaMailSender` and HTML template rendering.
-  - [ ] **Channel 2: SMS Notification Channel**
-    - [ ] Implement `SmsNotificationChannel` using Twilio / AWS SNS SDK.
-  - [ ] **Channel 3: Push Notification Channel**
-    - [ ] Implement `PushNotificationChannel` using Firebase `firebase-admin` SDK.
-  - [ ] **Channel 4: Webhook Notification Channel**
-    - [ ] Implement `WebhookNotificationChannel` using non-blocking `WebClient`.
-    - [ ] Add HMAC-SHA256 signature generation attaching `X-Hub-Signature-256` header for payload verification.
+  - [x] **Channel 2: SMS Notification Channel**
+    - [x] Implement `SmsNotificationChannel` using Twilio / AWS SNS SDK.
+  - [x] **Channel 3: Push Notification Channel**
+    - [x] Implement `PushNotificationChannel` using Firebase `firebase-admin` SDK.
+  - [x] **Channel 4: Webhook Notification Channel**
+    - [x] Implement `WebhookNotificationChannel` using non-blocking `WebClient`.
+    - [x] Add HMAC-SHA256 signature generation attaching `X-Hub-Signature-256` header for payload verification.
 
 ---
 
