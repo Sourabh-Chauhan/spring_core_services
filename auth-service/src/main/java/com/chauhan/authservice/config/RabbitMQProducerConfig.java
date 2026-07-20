@@ -18,6 +18,7 @@ public class RabbitMQProducerConfig {
 
     public static final String NOTIFICATION_EXCHANGE = "notification.exchange";
     public static final String ROUTING_KEY_USER_REGISTERED = "user.registered";
+    public static final String ROUTING_KEY_PASSWORD_RESET = "user.password-reset";
 
     /**
      * Topic Exchange declaration for broadcasting notification events.

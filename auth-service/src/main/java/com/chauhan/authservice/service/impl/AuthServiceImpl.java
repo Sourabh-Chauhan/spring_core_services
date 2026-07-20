@@ -11,13 +11,16 @@ import com.chauhan.authservice.exceptions.EmailNotVerifiedException;
 import com.chauhan.authservice.repository.UserRepository;
 import com.chauhan.authservice.security.JwtUtil;
 import com.chauhan.authservice.service.AuthService;
-import com.chauhan.authservice.service.EmailService;
 import com.chauhan.authservice.service.PasswordResetTokenService;
 import com.chauhan.authservice.service.UserService;
 import com.chauhan.authservice.service.VerificationTokenService;
 import com.chauhan.authservice.service.TokenBlacklistService;
 import com.chauhan.authservice.config.AppConstants;
+import com.chauhan.authservice.config.RabbitMQProducerConfig;
 import com.chauhan.authservice.event.AuditEvent;
+import com.chauhan.authservice.event.UserRegisteredEvent;
+import com.chauhan.authservice.event.PasswordResetRequestedEvent;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -34,6 +37,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -42,7 +46,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserService userService;
     private final UserRepository userRepository;
     private final VerificationTokenService tokenService;
-    private final EmailService emailService;
+    private final RabbitTemplate rabbitTemplate;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
@@ -63,8 +67,20 @@ public class AuthServiceImpl implements AuthService {
         // Generate email verification token
         VerificationToken verificationToken = tokenService.createTokenForUser(user);
 
-        // Send verification email
-        emailService.sendVerificationEmail(user.getEmail(), verificationToken.getToken());
+        // Publish UserRegisteredEvent asynchronously to RabbitMQ exchange
+        UserRegisteredEvent registeredEvent = UserRegisteredEvent.builder()
+                .userId(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .verificationToken(verificationToken.getToken())
+                .timestamp(Instant.now())
+                .build();
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQProducerConfig.NOTIFICATION_EXCHANGE,
+                RabbitMQProducerConfig.ROUTING_KEY_USER_REGISTERED,
+                registeredEvent
+        );
 
         String[] clientInfo = getRequestIpAndUserAgent();
         eventPublisher.publishEvent(new AuditEvent(this, AppConstants.AUDIT_EVENT_REGISTRATION, user.getEmail(), clientInfo[0], clientInfo[1], "User registered successfully"));
@@ -164,7 +180,19 @@ public class AuthServiceImpl implements AuthService {
             User user = userOpt.get();
             if (!user.isEmailVerified()) {
                 VerificationToken token = tokenService.createTokenForUser(user);
-                emailService.sendVerificationEmail(user.getEmail(), token.getToken());
+                UserRegisteredEvent registeredEvent = UserRegisteredEvent.builder()
+                        .userId(user.getId())
+                        .email(user.getEmail())
+                        .name(user.getName())
+                        .verificationToken(token.getToken())
+                        .timestamp(Instant.now())
+                        .build();
+
+                rabbitTemplate.convertAndSend(
+                        RabbitMQProducerConfig.NOTIFICATION_EXCHANGE,
+                        RabbitMQProducerConfig.ROUTING_KEY_USER_REGISTERED,
+                        registeredEvent
+                );
             }
         }
     }
@@ -176,7 +204,19 @@ public class AuthServiceImpl implements AuthService {
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             PasswordResetToken token = passwordResetTokenService.createTokenForUser(user);
-            emailService.sendPasswordResetEmail(user.getEmail(), token.getToken());
+            PasswordResetRequestedEvent resetEvent = PasswordResetRequestedEvent.builder()
+                    .userId(user.getId())
+                    .email(user.getEmail())
+                    .name(user.getName())
+                    .resetToken(token.getToken())
+                    .timestamp(Instant.now())
+                    .build();
+
+            rabbitTemplate.convertAndSend(
+                    RabbitMQProducerConfig.NOTIFICATION_EXCHANGE,
+                    RabbitMQProducerConfig.ROUTING_KEY_PASSWORD_RESET,
+                    resetEvent
+            );
 
             String[] clientInfo = getRequestIpAndUserAgent();
             eventPublisher.publishEvent(new AuditEvent(this, AppConstants.AUDIT_EVENT_PASSWORD_RESET_REQUEST, user.getEmail(), clientInfo[0], clientInfo[1], "Password reset requested"));

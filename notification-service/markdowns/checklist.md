@@ -21,10 +21,10 @@ This checklist tracks the step-by-step development and integration of the decoup
   - [x] Add `spring-boot-starter-amqp` to [`auth-service/pom.xml`](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/pom.xml).
   - [x] Configure `RabbitTemplate` and Jackson JSON Message Converter in [`RabbitMQProducerConfig.java`](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/java/com/chauhan/authservice/config/RabbitMQProducerConfig.java).
   - [x] Configure RabbitMQ connection properties in [`application-dev.yml`](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/resources/application-dev.yml).
-- [ ] **Event Declaration & Publishing**
-  - [ ] Create `UserRegisteredEvent` DTO (`userId`, `email`, `fullName`, `timestamp`, etc.).
-  - [ ] Refactor registration flow in `auth-service` to publish `UserRegisteredEvent` to `notification.exchange` with routing key `user.registered`.
-  - [ ] Remove synchronous JavaMailSender / mail dispatch calls from `auth-service`.
+- [x] **Event Declaration & Publishing**
+  - [x] Create `UserRegisteredEvent` DTO in [`UserRegisteredEvent.java`](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/java/com/chauhan/authservice/event/UserRegisteredEvent.java) and `PasswordResetRequestedEvent` in [`PasswordResetRequestedEvent.java`](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/java/com/chauhan/authservice/event/PasswordResetRequestedEvent.java).
+  - [x] Refactor registration flow in [`AuthServiceImpl.java`](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/java/com/chauhan/authservice/service/impl/AuthServiceImpl.java) to publish `UserRegisteredEvent` to `notification.exchange` with routing key `user.registered`.
+  - [x] Remove synchronous JavaMailSender / mail dispatch calls and `EmailService` from `auth-service`.
 
 ---
 
