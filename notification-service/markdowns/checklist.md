@@ -42,11 +42,11 @@ This checklist tracks the step-by-step development and integration of the decoup
 - [x] **Listener Implementation**
   - [x] Create Jackson JSON deserialization configuration for RabbitMQ listener.
   - [x] Implement `@RabbitListener` method listening on `notification.email.registration` queue.
-- [ ] **Polymorphic Notification Strategy Architecture**
-  - [ ] Create `NotificationChannel` interface (`supports(NotificationType type)`, `send(NotificationPayload payload)`).
-  - [ ] Create `NotificationDispatcher` component to route payloads based on user preferences.
-  - [ ] **Channel 1: Email Notification Channel**
-    - [ ] Implement `EmailNotificationChannel` using `JavaMailSender` and HTML template rendering.
+- [x] **Polymorphic Notification Strategy Architecture**
+  - [x] Create `NotificationChannel` interface (`supports(NotificationType type)`, `send(NotificationPayload payload)`).
+  - [x] Create `NotificationDispatcher` component to route payloads based on user preferences.
+  - [x] **Channel 1: Email Notification Channel**
+    - [x] Implement `EmailNotificationChannel` using `JavaMailSender` and HTML template rendering.
   - [ ] **Channel 2: SMS Notification Channel**
     - [ ] Implement `SmsNotificationChannel` using Twilio / AWS SNS SDK.
   - [ ] **Channel 3: Push Notification Channel**
