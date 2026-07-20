@@ -17,10 +17,10 @@ This checklist tracks the step-by-step development and integration of the decoup
 ---
 
 ## 2. Refactor Producer (`auth-service`)
-- [ ] **Dependencies & Configurations**
-  - [ ] Add `spring-boot-starter-amqp` to `auth-service/pom.xml`.
-  - [ ] Configure `RabbitTemplate` and Jackson JSON Message Converter (`Jackson2JsonMessageConverter`).
-  - [ ] Configure RabbitMQ connection properties in `application.yml`.
+- [x] **Dependencies & Configurations**
+  - [x] Add `spring-boot-starter-amqp` to [`auth-service/pom.xml`](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/pom.xml).
+  - [x] Configure `RabbitTemplate` and Jackson JSON Message Converter in [`RabbitMQProducerConfig.java`](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/java/com/chauhan/authservice/config/RabbitMQProducerConfig.java).
+  - [x] Configure RabbitMQ connection properties in [`application-dev.yml`](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/resources/application-dev.yml).
 - [ ] **Event Declaration & Publishing**
   - [ ] Create `UserRegisteredEvent` DTO (`userId`, `email`, `fullName`, `timestamp`, etc.).
   - [ ] Refactor registration flow in `auth-service` to publish `UserRegisteredEvent` to `notification.exchange` with routing key `user.registered`.

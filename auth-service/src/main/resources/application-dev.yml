@@ -14,6 +14,19 @@ spring:
       port: ${SPRING_REDIS_PORT:6379}
       password: ${SPRING_REDIS_PASSWORD:}
 
+  # RabbitMQ Connection & Template Configuration
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:myuser}
+    password: ${SPRING_RABBITMQ_PASSWORD:mypassword}
+    template:
+      retry:
+        enabled: true
+        initial-interval: 1000ms
+        max-attempts: 3
+        multiplier: 2.0
+
 
   # Spring Security OAuth2 client registration properties
   security:
