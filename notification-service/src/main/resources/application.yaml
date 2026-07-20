@@ -1,8 +1,81 @@
+server:
+  port: ${PORT:8084}
+
 spring:
   application:
     name: notification-service
+
+  # RabbitMQ Connection & Listener Retry Configuration
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: myuser
-    password: mypassword
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:myuser}
+    password: ${SPRING_RABBITMQ_PASSWORD:mypassword}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 1000ms
+          max-attempts: 3
+          multiplier: 2.0
+    template:
+      retry:
+        enabled: true
+        initial-interval: 1000ms
+        max-attempts: 3
+        multiplier: 2.0
+
+  # Spring Mail (SMTP) Configuration
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:your-email@gmail.com}
+    password: ${SPRING_MAIL_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+# Eureka Client Configuration for Service Discovery
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+# Multi-Channel Notification Properties & External Credentials
+app:
+  notification:
+    twilio:
+      account-sid: ${TWILIO_ACCOUNT_SID:AC_dummy_account_sid}
+      auth-token: ${TWILIO_AUTH_TOKEN:dummy_auth_token}
+      from-phone-number: ${TWILIO_FROM_PHONE_NUMBER:+1234567890}
+    firebase:
+      credentials-path: ${FIREBASE_CREDENTIALS_PATH:classpath:firebase-service-account.json}
+    webhook:
+      secret-key: ${WEBHOOK_SECRET_KEY:default_webhook_hmac_secret_key}
+      connect-timeout-ms: ${WEBHOOK_CONNECT_TIMEOUT_MS:5000}
+      read-timeout-ms: ${WEBHOOK_READ_TIMEOUT_MS:5000}
+    rabbitmq:
+      exchange: ${NOTIFICATION_EXCHANGE:notification.exchange}
+      queue:
+        registration: ${NOTIFICATION_QUEUE_REGISTRATION:notification.email.registration}
+      routing-key:
+        registration: ${NOTIFICATION_ROUTING_KEY_REGISTRATION:user.registered}
+      dlx: ${NOTIFICATION_DLX:notification.dlx}
+      dlq: ${NOTIFICATION_DLQ:notification.dlq}
+
+# Logging Configuration
+logging:
+  level:
+    com.chauhan.notificationservice: DEBUG
+    org.springframework.amqp: INFO

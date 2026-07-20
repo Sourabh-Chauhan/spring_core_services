@@ -38,7 +38,7 @@ This checklist tracks the step-by-step development and integration of the decoup
     - [x] `com.twilio.sdk:twilio` (v10.6.0)
     - [x] `com.google.firebase:firebase-admin` (v9.4.3)
     - [x] `org.projectlombok:lombok`
-  - [ ] Configure `application.yml` for Eureka registration, RabbitMQ listener, mail server settings, and external credentials.
+  - [x] Configure `application.yml` for Eureka registration, RabbitMQ listener, mail server settings, and external credentials.
 - [ ] **Listener Implementation**
   - [ ] Create Jackson JSON deserialization configuration for RabbitMQ listener.
   - [ ] Implement `@RabbitListener` method listening on `notification.email.registration` queue.
