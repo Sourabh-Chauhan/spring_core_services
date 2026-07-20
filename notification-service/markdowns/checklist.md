@@ -39,9 +39,9 @@ This checklist tracks the step-by-step development and integration of the decoup
     - [x] `com.google.firebase:firebase-admin` (v9.4.3)
     - [x] `org.projectlombok:lombok`
   - [x] Configure `application.yml` for Eureka registration, RabbitMQ listener, mail server settings, and external credentials.
-- [ ] **Listener Implementation**
-  - [ ] Create Jackson JSON deserialization configuration for RabbitMQ listener.
-  - [ ] Implement `@RabbitListener` method listening on `notification.email.registration` queue.
+- [x] **Listener Implementation**
+  - [x] Create Jackson JSON deserialization configuration for RabbitMQ listener.
+  - [x] Implement `@RabbitListener` method listening on `notification.email.registration` queue.
 - [ ] **Polymorphic Notification Strategy Architecture**
   - [ ] Create `NotificationChannel` interface (`supports(NotificationType type)`, `send(NotificationPayload payload)`).
   - [ ] Create `NotificationDispatcher` component to route payloads based on user preferences.

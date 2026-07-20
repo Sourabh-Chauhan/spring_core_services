@@ -1,14 +1,20 @@
 package com.chauhan.notificationservice.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.amqp.core.*;
-import org.springframework.amqp.support.converter.JacksonJsonMessageConverter ;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
  * RabbitMQ Configuration for Notification Service.
- * Defines Topic Exchange, Queues, Routing Keys, and Dead Letter Exchange (DLX) for error handling.
+ * Defines Topic Exchange, Queues, Routing Keys, Dead Letter Exchange (DLX),
+ * and Jackson JSON deserialization configuration for AMQP listeners.
  */
 @Configuration
 public class RabbitMQConfig {
@@ -78,10 +84,27 @@ public class RabbitMQConfig {
     }
 
     /**
-     * Configures Jackson JSON Message Converter for AMQP message payload conversion.
+     * Configures Jackson2JsonMessageConverter for AMQP JSON payload serialization/deserialization.
+     * Registers JavaTimeModule for Java 8 Instant handling and disables failure on unknown properties.
      */
     @Bean
+    @SuppressWarnings("deprecation")
     public MessageConverter jsonMessageConverter() {
-        return new JacksonJsonMessageConverter();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        return new Jackson2JsonMessageConverter(mapper);
+    }
+
+    /**
+     * Configures SimpleRabbitListenerContainerFactory to use Jackson2JsonMessageConverter.
+     */
+    @Bean
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(jsonMessageConverter());
+        return factory;
     }
 }
