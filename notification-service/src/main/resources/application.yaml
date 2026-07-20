@@ -1,3 +1,8 @@
 spring:
   application:
     name: notification-service
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: myuser
+    password: mypassword

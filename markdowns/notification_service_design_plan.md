@@ -22,6 +22,42 @@ For this project, we recommend **RabbitMQ** (via Spring AMQP / Spring Cloud Stre
 
 ---
 
+### Detailed Exchange & Queue Architecture Explained
+
+#### 1. Core Concepts & Definitions
+* **Topic Exchange (`notification.exchange`):** In AMQP/RabbitMQ, producers never send messages directly to queues. Instead, messages are sent to an **Exchange**, which acts as a message router. A **Topic Exchange** routes messages to bound queues based on pattern matching between the message's *Routing Key* and the queue's *Binding Pattern* (e.g., `user.*`, `user.registered`).
+* **Queue (`notification.email.registration`):** A durable message buffer in RabbitMQ that stores messages until `notification-service` instances consume and process them.
+* **Routing Key (`user.registered`):** A contextual string tag attached to every published message by a producer (`auth-service`). It describes the event that occurred.
+* **Dead Letter Exchange (DLX - `notification.dlx`) & Dead Letter Queue (DLQ - `notification.dlq`):**
+  - A specialized exchange and queue setup used for error recovery.
+  - When a message fails processing in the primary queue (e.g., due to unhandled exceptions, SMTP failure after retries, message rejection, or TTL expiration), RabbitMQ automatically dead-letters the message and reroutes it to `notification.dlx` -> `notification.dlq`.
+
+#### 2. Why Are We Doing This? (Architectural Benefits)
+1. **Publisher-Subscriber Decoupling:** `auth-service` does not need to know which consumers exist, how many queues are listening, or how notifications are delivered. It simply broadcasts `"user.registered happened"` to `notification.exchange`.
+2. **System Extensibility:** If we later introduce a `marketing-service` or `analytics-service`, we can bind new queues (e.g., `marketing.welcome.campaign`) to `notification.exchange` with the same routing key `user.registered` without changing a single line of code in `auth-service`.
+3. **Guaranteed Delivery & Buffer:** If `notification-service` is offline or under high load, RabbitMQ safely buffers incoming events in `notification.email.registration` without dropping data or degrading `auth-service` performance.
+4. **Poison-Pill Prevention via DLQ:** If a specific message is corrupted or repeatedly fails processing, DLQ traps it without blocking the rest of the queue or causing infinite retry loops.
+
+#### 3. Flow Execution Diagram
+```text
+ [auth-service]
+       │
+       ▼ (Publishes: "user.registered" event)
+[Topic Exchange: notification.exchange]
+       │
+       ├────────────────────────┐ (Matching Binding Key: "user.registered")
+       ▼                        ▼
+[Queue: notification.email.registration]   [Future Queue: analytics.user.registered]
+       │
+       ▼ (Consumes & Dispatches)
+[notification-service]
+       │ (On repeated failure / rejection)
+       ▼
+ [DLX: notification.dlx] ──► [DLQ: notification.dlq]
+```
+
+---
+
 ## 1. Decoupled Architecture Diagram (Mermaid)
 
 ```mermaid
