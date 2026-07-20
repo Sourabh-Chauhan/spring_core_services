@@ -29,14 +29,15 @@ This checklist tracks the step-by-step development and integration of the decoup
 ---
 
 ## 3. Bootstrap & Core Development (`notification-service`)
-- [ ] **Project Setup & Dependencies**
-  - [ ] Review and update `notification-service/pom.xml` dependencies:
-    - [ ] `spring-boot-starter-amqp`
-    - [ ] `spring-boot-starter-mail`
-    - [ ] `spring-cloud-starter-netflix-eureka-client`
-    - [ ] `spring-boot-starter-webflux` (for non-blocking WebClient)
-    - [ ] `com.twilio.sdk:twilio`
-    - [ ] `com.google.firebase:firebase-admin`
+- [x] **Project Setup & Dependencies**
+  - [x] Review and update [`notification-service/pom.xml`](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/notification-service/pom.xml) and root [`pom.xml`](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/pom.xml) dependencies:
+    - [x] `spring-boot-starter-amqp`
+    - [x] `spring-boot-starter-mail`
+    - [x] `spring-cloud-starter-netflix-eureka-client`
+    - [x] `spring-boot-starter-webflux` (for non-blocking WebClient)
+    - [x] `com.twilio.sdk:twilio` (v10.6.0)
+    - [x] `com.google.firebase:firebase-admin` (v9.4.3)
+    - [x] `org.projectlombok:lombok`
   - [ ] Configure `application.yml` for Eureka registration, RabbitMQ listener, mail server settings, and external credentials.
 - [ ] **Listener Implementation**
   - [ ] Create Jackson JSON deserialization configuration for RabbitMQ listener.
