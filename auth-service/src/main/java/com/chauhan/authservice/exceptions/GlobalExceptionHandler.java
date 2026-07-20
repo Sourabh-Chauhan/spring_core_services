@@ -1,6 +1,6 @@
 package com.chauhan.authservice.exceptions;
 
-import com.chauhan.authservice.dtos.ApiError;
+import com.chauhan.authservice.dto.response.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

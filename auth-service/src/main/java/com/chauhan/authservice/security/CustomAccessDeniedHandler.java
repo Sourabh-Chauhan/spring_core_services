@@ -1,6 +1,6 @@
 package com.chauhan.authservice.security;
 
-import com.chauhan.authservice.dtos.ApiError;
+import com.chauhan.authservice.dto.response.ApiError;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

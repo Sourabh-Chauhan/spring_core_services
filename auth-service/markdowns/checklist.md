@@ -78,3 +78,17 @@ This checklist outlines the development goals for the authentication and authori
 - [ ] **Containerization:**
     - [ ] Create a `Dockerfile` for the `auth-service`.
     - [ ] Set up a `docker-compose.yml` for local development.
+
+## Phase 5: Security Hardening & Improvements (from TODO)
+
+- [ ] **Security & Endpoint Authorization:**
+    - [ ] Secure User Management Endpoints (re-enable SecurityConfig matching and add `@PreAuthorize("hasRole('ADMIN')")` to UserController).
+    - [ ] Restrict CORS allowed origins via properties to fix Insecure CORS Wildcard.
+    - [ ] Implement password verification for password changes and re-verification workflow for email updates.
+- [ ] **API Gateway Compatibility & Shared Redis Blacklist:**
+    - [ ] Resolve Blacklist Incompatibility (refactor TokenBlacklistServiceImpl to store JTI instead of raw token).
+    - [x] Integrate Service Discovery (Eureka Client dependency added and configured).
+- [x] **Performance & Architecture Fixes:**
+    - [x] Implement Skip-Null-Fields Update Strategy (HTTP PATCH mapping with map-based field presence checking).
+- [x] **Configuration & Deployment Fixes:**
+    - [x] Avoid Hardcoded Client Redirect URLs (inject `app.frontend-url` property in handlers).

@@ -1,6 +1,6 @@
 package com.chauhan.authservice.security;
 
-import com.chauhan.authservice.dtos.ApiError;
+import com.chauhan.authservice.dto.response.ApiError;
 //import com.fasterxml.jackson.databind.ObjectMapper; // Corrected import
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

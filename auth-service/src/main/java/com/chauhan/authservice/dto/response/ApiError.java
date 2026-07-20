@@ -1,4 +1,4 @@
-package com.chauhan.authservice.dtos;
+package com.chauhan.authservice.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

@@ -66,11 +66,11 @@ This checklist tracks the implementation and verification goals for the centrali
 
 ## Phase 5: Testing & Production Hardening
 
-- [ ] **Verification & Testing:**
-    - [ ] Verify that public endpoints bypass validation and are routed successfully.
-    - [ ] Verify that protected endpoints require valid JWT headers.
-    - [ ] Verify that blacklisted JTIs (following logout) are rejected by the Gateway.
-    - [ ] Verify that rate-limited clients receive `429 Too Many Requests`.
+- [x] **Verification & Testing:**
+    - [x] Verify that public endpoints bypass validation and are routed successfully.
+    - [x] Verify that protected endpoints require valid JWT headers.
+    - [x] Verify that blacklisted JTIs (following logout) are rejected by the Gateway.
+    - [x] Verify that rate-limited clients receive `429 Too Many Requests`.
 - [ ] **Observability:**
     - [ ] Set up Actuator health check and Prometheus metrics endpoints.
 - [ ] **Containerization:**

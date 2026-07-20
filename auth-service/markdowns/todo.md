@@ -48,16 +48,6 @@ This document lists the recommended security enhancements, bug fixes, and archit
 - **Remediation:** 
   - Modify `TokenBlacklistServiceImpl` to extract the JTI from the token using `jwtUtil.getJti(token)` and use `blacklist:<jti>` as the Redis key.
 
-### 📡 Missing Service Discovery (Eureka Client)
-- **Files:** 
-  - [pom.xml](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/pom.xml)
-  - [application-dev.yml](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/resources/application-dev.yml#L75-L84)
-- **Description:** 
-  The API Gateway requires downstream service discovery via Eureka to dynamically route traffic using `lb://auth-service`. The `auth-service` currently lacks the Eureka client dependency and has its Eureka configuration commented out in `application-dev.yml`.
-- **Remediation:** 
-  - Add `spring-cloud-starter-netflix-eureka-client` to the `pom.xml` dependencies.
-  - Uncomment and enable Eureka configuration in `application-dev.yml`.
-
 ---
 
 ## 3. Performance & Architecture
@@ -67,25 +57,4 @@ This document lists the recommended security enhancements, bug fixes, and archit
 - **Description:** 
   Mail sending operations (verification email, reset link email) are executed synchronously. If the SMTP server (e.g., MailHog) is slow or unresponsive, user requests (like registration) will block.
 - **Remediation:** 
-  - Annotate `sendVerificationEmail` and `sendPasswordResetEmail` in `EmailServiceImpl` with `@Async("taskExecutor")` to execute them asynchronously in the background.
-
-### 📐 [x] Skip-Null-Fields Update Strategy (Fixed)
-- **File:** [UserServiceImpl.java](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/java/com/chauhan/authservice/service/impl/UserServiceImpl.java#L118-L174)
-- **Description:** 
-  The `updateUser` method skipped null fields, preventing clients from clearing out optional attributes (e.g., removing a profile image URL by passing null).
-- **Remediation:** 
-  - [x] Implemented HTTP `PATCH` request model using a `Map<String, Object>` in [UserController.java](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/java/com/chauhan/authservice/controller/UserController.java) and `patchUser` in [UserServiceImpl.java](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/java/com/chauhan/authservice/service/impl/UserServiceImpl.java) to distinguish between "not sent" (key absent) and "explicitly set to null" (key present with null value).
-
----
-
-## 4. Configuration & Deployment
-
-### 🌐 [x] Hardcoded Client URLs (Fixed)
-- **Files:** 
-  - [OAuth2SuccessHandler.java](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/java/com/chauhan/authservice/security/OAuth2SuccessHandler.java#L86)
-  - [OAuth2FailureHandler.java](file:///run/media/sourabh/WorkSpace/Java/Spring%20boot/MicroServices/spring_core_services/auth-service/src/main/java/com/chauhan/authservice/security/OAuth2FailureHandler.java#L36)
-- **Description:** 
-  Redirect and error landing pages were hardcoded to `http://localhost:3000`. This would break when migrating to higher environments (staging, production).
-- **Remediation:** 
-  - [x] Injected externalized redirect URIs from properties via `@Value("${app.frontend-url}")` and replaced hardcoded values.
-
+  - Annotate `sendVerificationEmail` and `sendPasswordResetEmail` in `EmailServiceImpl` with `@Async("taskExecutor")` to execute them asynchronously in the background. (Or fully decouple via RabbitMQ and `notification-service`).
