@@ -58,9 +58,9 @@ This checklist tracks the step-by-step development and integration of the decoup
 ---
 
 ## 4. Resilience, Error Handling & DLQ
-- [ ] Implement automatic retries with exponential backoff for transient failures (e.g. SMTP/HTTP timeout).
-- [ ] Route unprocessable or repeatedly failing messages to Dead Letter Queue (`DLQ`).
-- [ ] Add structured logging and error handling across all dispatch channels.
+- [x] Implement automatic retries with exponential backoff for transient failures (e.g. SMTP/HTTP timeout).
+- [x] Route unprocessable or repeatedly failing messages to Dead Letter Queue (`DLQ`).
+- [x] Add structured logging and error handling across all dispatch channels.
 
 ---
 

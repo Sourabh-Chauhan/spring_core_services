@@ -1,6 +1,7 @@
 package com.chauhan.notificationservice.dispatcher;
 
 import com.chauhan.notificationservice.channel.NotificationChannel;
+import com.chauhan.notificationservice.exception.PermanentNotificationException;
 import com.chauhan.notificationservice.model.NotificationPayload;
 import com.chauhan.notificationservice.model.NotificationType;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class NotificationDispatcher {
     public void dispatch(NotificationPayload payload) {
         if (payload == null || payload.getType() == null) {
             log.warn("Cannot dispatch null payload or unassigned notification type.");
-            return;
+            throw new PermanentNotificationException("Cannot dispatch null payload or unassigned notification type.");
         }
 
         NotificationType type = payload.getType();
@@ -49,6 +50,7 @@ public class NotificationDispatcher {
 
         if (!dispatched) {
             log.warn("No matching notification channel registered for type [{}]", type);
+            throw new PermanentNotificationException("No matching channel registered for type: " + type);
         }
     }
 }

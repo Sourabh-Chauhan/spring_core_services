@@ -56,3 +56,7 @@ application-local.yaml
 
 ### MetaData ###
 .metadata/
+
+### Gemini ###
+.gemini/
+.run/

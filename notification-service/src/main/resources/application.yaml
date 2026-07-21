@@ -13,11 +13,13 @@ spring:
     password: ${SPRING_RABBITMQ_PASSWORD:mypassword}
     listener:
       simple:
+        default-requeue-rejected: false
         retry:
           enabled: true
           initial-interval: 1000ms
           max-attempts: 3
           multiplier: 2.0
+          max-interval: 10000ms
     template:
       retry:
         enabled: true

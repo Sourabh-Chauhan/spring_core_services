@@ -1,15 +1,20 @@
 package com.chauhan.notificationservice.channel.impl;
 
 import com.chauhan.notificationservice.channel.NotificationChannel;
+import com.chauhan.notificationservice.exception.PermanentNotificationException;
+import com.chauhan.notificationservice.exception.TransientNotificationException;
 import com.chauhan.notificationservice.model.NotificationPayload;
 import com.chauhan.notificationservice.model.NotificationType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -18,7 +23,8 @@ import java.time.Duration;
 import java.util.HexFormat;
 
 /**
- * Implementation of NotificationChannel for dispatching Webhook HTTP notifications using non-blocking WebClient with HMAC-SHA256 security signatures.
+ * Implementation of NotificationChannel for dispatching Webhook HTTP notifications using non-blocking WebClient
+ * with HMAC-SHA256 security signatures, structured MDC logging, and exception classification.
  */
 @Component
 @RequiredArgsConstructor
@@ -42,6 +48,14 @@ public class WebhookNotificationChannel implements NotificationChannel {
     @Override
     public void send(NotificationPayload payload) {
         String targetUrl = payload.getRecipient();
+
+        if (targetUrl == null || targetUrl.isBlank() || (!targetUrl.startsWith("http://") && !targetUrl.startsWith("https://"))) {
+            log.error("[MDC channel=WEBHOOK] Invalid target URL: [{}]", targetUrl);
+            throw new PermanentNotificationException("Invalid Webhook target URL: " + targetUrl);
+        }
+
+        MDC.put("channel", "WEBHOOK");
+        MDC.put("recipient", targetUrl);
         log.info("Dispatching Webhook notification to URL [{}]", targetUrl);
 
         try {
@@ -60,9 +74,20 @@ public class WebhookNotificationChannel implements NotificationChannel {
                     .block(Duration.ofMillis(readTimeoutMs));
 
             log.info("Successfully dispatched Webhook notification to URL [{}]", targetUrl);
+        } catch (WebClientResponseException e) {
+            HttpStatusCode status = e.getStatusCode();
+            if (status.is4xxClientError()) {
+                log.error("Permanent HTTP 4xx response from Webhook endpoint [{}]: status={}", targetUrl, status, e);
+                throw new PermanentNotificationException("Webhook endpoint returned client error: " + status, e);
+            }
+            log.error("Transient HTTP 5xx response from Webhook endpoint [{}]: status={}", targetUrl, status, e);
+            throw new TransientNotificationException("Webhook endpoint returned server error: " + status, e);
         } catch (Exception e) {
-            log.error("Failed to send Webhook notification to URL [{}]", targetUrl, e);
-            throw new RuntimeException("Webhook notification dispatch failed for URL: " + targetUrl, e);
+            log.error("Transient error dispatching Webhook notification to URL [{}]", targetUrl, e);
+            throw new TransientNotificationException("Webhook notification dispatch failed for URL: " + targetUrl, e);
+        } finally {
+            MDC.remove("channel");
+            MDC.remove("recipient");
         }
     }
 

@@ -3,15 +3,18 @@ package com.chauhan.notificationservice.listener;
 import com.chauhan.notificationservice.config.RabbitMQConfig;
 import com.chauhan.notificationservice.dispatcher.NotificationDispatcher;
 import com.chauhan.notificationservice.event.UserRegisteredEvent;
+import com.chauhan.notificationservice.exception.PermanentNotificationException;
+
 import com.chauhan.notificationservice.model.NotificationPayload;
 import com.chauhan.notificationservice.model.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 /**
- * RabbitMQ Event Listener for handling incoming notification events.
+ * RabbitMQ Event Listener for handling incoming notification events with MDC context enrichment and exception propagation.
  */
 @Component
 @RequiredArgsConstructor
@@ -27,7 +30,15 @@ public class NotificationEventListener {
      */
     @RabbitListener(queues = RabbitMQConfig.REGISTRATION_QUEUE_NAME)
     public void handleUserRegistrationEvent(UserRegisteredEvent event) {
-        log.info("Received UserRegisteredEvent: userId={}, email={}, name={}, timestamp={}",
+        if (event == null || event.getEmail() == null) {
+            log.error("Received null or malformed UserRegisteredEvent payload.");
+            throw new PermanentNotificationException("Received null or malformed UserRegisteredEvent payload.");
+        }
+
+        MDC.put("userId", String.valueOf(event.getUserId()));
+        MDC.put("email", event.getEmail());
+
+        log.info("Processing UserRegisteredEvent: userId={}, email={}, name={}, timestamp={}",
                 event.getUserId(), event.getEmail(), event.getName(), event.getTimestamp());
 
         try {
@@ -41,10 +52,13 @@ public class NotificationEventListener {
                     .build();
 
             notificationDispatcher.dispatch(payload);
-            log.info("Successfully processed UserRegisteredEvent for user: {}", event.getEmail());
+            log.info("Successfully completed processing UserRegisteredEvent for user: {}", event.getEmail());
         } catch (Exception e) {
             log.error("Failed to process UserRegisteredEvent for user: {}", event.getEmail(), e);
-            throw e; // Re-throw to trigger RabbitMQ retry / Dead Letter Queue routing
+            throw e;
+        } finally {
+            MDC.remove("userId");
+            MDC.remove("email");
         }
     }
 

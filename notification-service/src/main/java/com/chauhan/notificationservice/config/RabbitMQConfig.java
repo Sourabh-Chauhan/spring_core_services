@@ -1,20 +1,26 @@
 package com.chauhan.notificationservice.config;
 
+import com.chauhan.notificationservice.exception.PermanentNotificationException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
+import org.springframework.amqp.rabbit.listener.ConditionalRejectingErrorHandler;
+import org.springframework.amqp.rabbit.retry.RejectAndDontRequeueRecoverer;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.aopalliance.intercept.MethodInterceptor;
 
 /**
  * RabbitMQ Configuration for Notification Service.
  * Defines Topic Exchange, Queues, Routing Keys, Dead Letter Exchange (DLX),
- * and Jackson JSON deserialization configuration for AMQP listeners.
+ * Dead Letter Queue (DLQ), Jackson JSON deserialization, exponential retry interceptor,
+ * and custom Fatal Exception Strategy for Permanent errors.
  */
 @Configuration
 public class RabbitMQConfig {
@@ -85,7 +91,6 @@ public class RabbitMQConfig {
 
     /**
      * Configures Jackson2JsonMessageConverter for AMQP JSON payload serialization/deserialization.
-     * Registers JavaTimeModule for Java 8 Instant handling and disables failure on unknown properties.
      */
     @Bean
     @SuppressWarnings("deprecation")
@@ -94,17 +99,53 @@ public class RabbitMQConfig {
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        return new JacksonJsonMessageConverter(String.valueOf(mapper));
+        return new Jackson2JsonMessageConverter(mapper);
     }
 
     /**
-     * Configures SimpleRabbitListenerContainerFactory to use Jackson2JsonMessageConverter.
+     * Stateless Retry Operations Interceptor with exponential backoff (initial=1000ms, multiplier=2.0, max=10000ms, maxRetries=3)
+     * and RejectAndDontRequeueRecoverer to ensure failed messages route directly to DLQ after retries.
      */
     @Bean
+    public MethodInterceptor retryInterceptor() {
+        return RetryInterceptorBuilder.stateless()
+                .maxRetries(3)
+                .backOffOptions(1000, 2.0, 10000)
+                .recoverer(new RejectAndDontRequeueRecoverer())
+                .build();
+    }
+
+    /**
+     * Custom ConditionalRejectingErrorHandler that treats PermanentNotificationException as fatal,
+     * immediately rejecting the message to DLQ without retrying.
+     */
+    @Bean
+    @SuppressWarnings("deprecation")
+    public ConditionalRejectingErrorHandler customErrorHandler() {
+        return new ConditionalRejectingErrorHandler(new ConditionalRejectingErrorHandler.DefaultExceptionStrategy() {
+            @Override
+            public boolean isFatal(Throwable t) {
+                if (t != null && (t instanceof PermanentNotificationException || t.getCause() instanceof PermanentNotificationException)) {
+                    return true;
+                }
+                return super.isFatal(t);
+            }
+        });
+    }
+
+    /**
+     * Configures SimpleRabbitListenerContainerFactory to use Jackson2JsonMessageConverter,
+     * exponential retry interceptor, and custom error handler.
+     */
+    @Bean
+    @SuppressWarnings("deprecation")
     public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         factory.setMessageConverter(jsonMessageConverter());
+        factory.setAdviceChain(retryInterceptor());
+        factory.setErrorHandler(customErrorHandler());
+        factory.setDefaultRequeueRejected(false);
         return factory;
     }
 }
