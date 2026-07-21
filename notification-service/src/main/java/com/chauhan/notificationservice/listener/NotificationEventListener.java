@@ -64,6 +64,8 @@ public class NotificationEventListener {
 
     private String buildWelcomeEmailHtml(String name, String verificationToken) {
         String displayName = (name != null && !name.isBlank()) ? name : "User";
+        String token = (verificationToken != null && !verificationToken.isBlank()) ? verificationToken : "N/A";
+
         return """
                 <!DOCTYPE html>
                 <html>
@@ -80,10 +82,10 @@ public class NotificationEventListener {
                     </tr>
                     <tr>
                       <td style="padding: 30px; color: #333333; line-height: 1.6;">
-                        <p>Hi <strong>%s</strong>,</p>
+                        <p>Hi <strong>{{NAME}}</strong>,</p>
                         <p>Thank you for registering! Your account has been created successfully. Please use the verification token below to complete your registration:</p>
                         <div style="background-color: #f0f4f9; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 16px; word-break: break-all; margin: 20px 0; text-align: center; color: #1a73e8;">
-                          %s
+                          {{TOKEN}}
                         </div>
                         <p>If you did not initiate this request, please ignore this email.</p>
                         <br>
@@ -93,6 +95,6 @@ public class NotificationEventListener {
                   </table>
                 </body>
                 </html>
-                """.formatted(displayName, verificationToken != null ? verificationToken : "N/A");
+                """.replace("{{NAME}}", displayName).replace("{{TOKEN}}", token);
     }
 }

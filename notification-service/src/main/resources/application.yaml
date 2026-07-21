@@ -27,19 +27,19 @@ spring:
         max-attempts: 3
         multiplier: 2.0
 
-  # Spring Mail (SMTP) Configuration
+  # Spring Mail (SMTP) Configuration - Defaults to MailHog (localhost:1025) in dev environment
   mail:
-    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
-    port: ${SPRING_MAIL_PORT:587}
-    username: ${SPRING_MAIL_USERNAME:your-email@gmail.com}
-    password: ${SPRING_MAIL_PASSWORD:your-app-password}
+    host: ${SPRING_MAIL_HOST:localhost}
+    port: ${SPRING_MAIL_PORT:1025}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
-          auth: true
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:false}
           starttls:
-            enable: true
-            required: true
+            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE:false}
+            required: false
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
