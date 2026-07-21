@@ -47,9 +47,9 @@ This checklist tracks the step-by-step development and integration of the decoup
   - [x] Create `NotificationDispatcher` component to route payloads based on user preferences.
   - [x] **Channel 1: Email Notification Channel**
     - [x] Implement `EmailNotificationChannel` using `JavaMailSender` and HTML template rendering.
-    - [ ] **Externalized HTML Email Templates & Engine**
-      - [ ] Replace inline Java text block HTML strings with proper externalized `.html` template files (e.g. `src/main/resources/templates/email/welcome-email.html`, `password-reset-email.html`).
-      - [ ] Integrate a template rendering mechanism (e.g. Thymeleaf / FreeMarker / `TemplateEngine`) for dynamic placeholder substitution and variable binding.
+    - [x] **Externalized HTML Email Templates & Engine**
+      - [x] Replace inline Java text block HTML strings with proper externalized `.html` template files (e.g. `src/main/resources/templates/email/welcome-email.html`, `password-reset-email.html`).
+      - [x] Integrate a template rendering mechanism (e.g. Thymeleaf / FreeMarker / `TemplateEngine`) for dynamic placeholder substitution and variable binding.
   - [x] **Channel 2: SMS Notification Channel**
     - [x] Implement `SmsNotificationChannel` using Twilio / AWS SNS SDK.
   - [x] **Channel 3: Push Notification Channel**

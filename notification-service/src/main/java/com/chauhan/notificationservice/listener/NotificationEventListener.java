@@ -7,14 +7,17 @@ import com.chauhan.notificationservice.exception.PermanentNotificationException;
 
 import com.chauhan.notificationservice.model.NotificationPayload;
 import com.chauhan.notificationservice.model.NotificationType;
+import com.chauhan.notificationservice.service.TemplateRenderingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 /**
- * RabbitMQ Event Listener for handling incoming notification events with MDC context enrichment and exception propagation.
+ * RabbitMQ Event Listener for handling incoming notification events with MDC context enrichment and externalized Thymeleaf template rendering.
  */
 @Component
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ import org.springframework.stereotype.Component;
 public class NotificationEventListener {
 
     private final NotificationDispatcher notificationDispatcher;
+    private final TemplateRenderingService templateRenderingService;
 
     /**
      * Consumes user registration events from the 'notification.email.registration' queue.
@@ -42,7 +46,13 @@ public class NotificationEventListener {
                 event.getUserId(), event.getEmail(), event.getName(), event.getTimestamp());
 
         try {
-            String htmlContent = buildWelcomeEmailHtml(event.getName(), event.getVerificationToken());
+            String displayName = (event.getName() != null && !event.getName().isBlank()) ? event.getName() : "User";
+            String token = (event.getVerificationToken() != null && !event.getVerificationToken().isBlank()) ? event.getVerificationToken() : "N/A";
+
+            String htmlContent = templateRenderingService.render("email/welcome-email", Map.of(
+                    "name", displayName,
+                    "verificationToken", token
+            ));
 
             NotificationPayload payload = NotificationPayload.builder()
                     .recipient(event.getEmail())
@@ -60,41 +70,5 @@ public class NotificationEventListener {
             MDC.remove("userId");
             MDC.remove("email");
         }
-    }
-
-    private String buildWelcomeEmailHtml(String name, String verificationToken) {
-        String displayName = (name != null && !name.isBlank()) ? name : "User";
-        String token = (verificationToken != null && !verificationToken.isBlank()) ? verificationToken : "N/A";
-
-        return """
-                <!DOCTYPE html>
-                <html>
-                <head>
-                  <meta charset="UTF-8">
-                  <title>Welcome to Spring Core Services</title>
-                </head>
-                <body style="font-family: Arial, sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px;">
-                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                    <tr style="background-color: #1a73e8; color: #ffffff;">
-                      <td style="padding: 20px; text-align: center;">
-                        <h1 style="margin: 0; font-size: 24px;">Welcome to Spring Core Services</h1>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 30px; color: #333333; line-height: 1.6;">
-                        <p>Hi <strong>{{NAME}}</strong>,</p>
-                        <p>Thank you for registering! Your account has been created successfully. Please use the verification token below to complete your registration:</p>
-                        <div style="background-color: #f0f4f9; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 16px; word-break: break-all; margin: 20px 0; text-align: center; color: #1a73e8;">
-                          {{TOKEN}}
-                        </div>
-                        <p>If you did not initiate this request, please ignore this email.</p>
-                        <br>
-                        <p>Best regards,<br>The Spring Core Team</p>
-                      </td>
-                    </tr>
-                  </table>
-                </body>
-                </html>
-                """.replace("{{NAME}}", displayName).replace("{{TOKEN}}", token);
     }
 }
