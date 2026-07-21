@@ -3,12 +3,10 @@ package com.chauhan.authservice;
 import com.chauhan.authservice.entity.Role;
 import com.chauhan.authservice.entity.User;
 import com.chauhan.authservice.security.JwtUtil;
-import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;

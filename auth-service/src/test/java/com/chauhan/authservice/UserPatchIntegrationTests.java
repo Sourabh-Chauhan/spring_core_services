@@ -1,6 +1,5 @@
 package com.chauhan.authservice;
 
-import com.chauhan.authservice.dto.UserDto;
 import com.chauhan.authservice.entity.User;
 import com.chauhan.authservice.repository.UserRepository;
 import com.chauhan.authservice.repository.VerificationTokenRepository;

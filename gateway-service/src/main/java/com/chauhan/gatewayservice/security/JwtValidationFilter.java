@@ -48,7 +48,7 @@ public class JwtValidationFilter extends AbstractGatewayFilterFactory<JwtValidat
                 // 3. Check Shared Redis Blacklist
                 return redisTemplate.hasKey("blacklist:" + jti)
                         .flatMap(isBlacklisted -> {
-                            if (Boolean.TRUE.equals(isBlacklisted)) {
+                            if (isBlacklisted) {
                                 return Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token is blacklisted (logged out)"));
                             }
 

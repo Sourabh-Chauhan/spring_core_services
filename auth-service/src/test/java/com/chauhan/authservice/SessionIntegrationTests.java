@@ -148,7 +148,7 @@ class SessionIntegrationTests {
 
         List<?> sessionsAfterRevoke = objectMapper.readValue(getSessionsResultAfterRevoke.getResponse().getContentAsString(), List.class);
         assertEquals(1, sessionsAfterRevoke.size());
-        Map<?, ?> remainingSession = (Map<?, ?>) sessionsAfterRevoke.get(0);
+        Map<?, ?> remainingSession = (Map<?, ?>) sessionsAfterRevoke.getFirst();
         assertEquals(currentSessionId.toString(), remainingSession.get("sessionId").toString());
         assertTrue((Boolean) remainingSession.get("currentSession"));
 
@@ -180,7 +180,7 @@ class SessionIntegrationTests {
                 .andReturn();
         List<?> postRevokeAllOtherSessions = objectMapper.readValue(postRevokeAllOtherResult.getResponse().getContentAsString(), List.class);
         assertEquals(1, postRevokeAllOtherSessions.size());
-        Map<?, ?> finalSession = (Map<?, ?>) postRevokeAllOtherSessions.get(0);
+        Map<?, ?> finalSession = (Map<?, ?>) postRevokeAllOtherSessions.getFirst();
         assertEquals(currentSessionId.toString(), finalSession.get("sessionId").toString());
     }
 }

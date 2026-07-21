@@ -6,7 +6,6 @@ import com.chauhan.notificationservice.exception.TransientNotificationException;
 import com.chauhan.notificationservice.model.NotificationPayload;
 import com.chauhan.notificationservice.model.NotificationType;
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

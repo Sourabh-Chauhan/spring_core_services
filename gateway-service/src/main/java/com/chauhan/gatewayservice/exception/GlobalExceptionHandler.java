@@ -1,5 +1,6 @@
 package com.chauhan.gatewayservice.exception;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebExceptionHandler;
@@ -22,7 +24,7 @@ import java.time.Instant;
 public class GlobalExceptionHandler implements WebExceptionHandler {
 
     @Override
-    public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
+    public @NonNull Mono<Void> handle(ServerWebExchange exchange, @NonNull Throwable ex) {
         ServerHttpResponse response = exchange.getResponse();
 
         // If the response has already been committed, delegate down the filter chain
@@ -35,8 +37,7 @@ public class GlobalExceptionHandler implements WebExceptionHandler {
         String message = ex.getMessage();
 
         // 1. Handle ResponseStatusException (e.g. Gateway Timeouts, 429 Rate Limits, etc.)
-        if (ex instanceof ResponseStatusException) {
-            ResponseStatusException rse = (ResponseStatusException) ex;
+        if (ex instanceof ResponseStatusException rse) {
             status = rse.getStatusCode();
             message = rse.getReason();
             if (status == HttpStatus.TOO_MANY_REQUESTS) {
@@ -61,8 +62,7 @@ public class GlobalExceptionHandler implements WebExceptionHandler {
             message = "Access Denied: You do not have permissions to access this resource.";
         }
         // 4. Handle HttpStatusCodeException (e.g. HttpClientErrorException.TooManyRequests)
-        else if (ex instanceof org.springframework.web.client.HttpStatusCodeException) {
-            org.springframework.web.client.HttpStatusCodeException hsce = (org.springframework.web.client.HttpStatusCodeException) ex;
+        else if (ex instanceof HttpStatusCodeException hsce) {
             status = hsce.getStatusCode();
             message = hsce.getStatusText();
             if (status == HttpStatus.TOO_MANY_REQUESTS) {

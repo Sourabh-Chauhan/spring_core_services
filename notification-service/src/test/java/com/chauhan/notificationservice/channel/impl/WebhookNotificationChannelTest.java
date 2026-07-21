@@ -58,7 +58,7 @@ class WebhookNotificationChannelTest {
     }
 
     @Test
-    void testSendDispatchesRequestWithHmacHeader() throws Exception {
+    void testSendDispatchesRequestWithHmacHeader() {
         NotificationPayload payload = NotificationPayload.builder()
                 .recipient("https://example.com/webhook/receive")
                 .subject("Webhook Notification")
@@ -74,18 +74,18 @@ class WebhookNotificationChannelTest {
         verify(requestBodyUriSpec).uri("https://example.com/webhook/receive");
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private WebClient.RequestBodyUriSpec mockWebClientChain() {
         WebClient.RequestBodyUriSpec requestBodyUriSpec = org.mockito.Mockito.mock(WebClient.RequestBodyUriSpec.class);
         WebClient.RequestBodySpec requestBodySpec = org.mockito.Mockito.mock(WebClient.RequestBodySpec.class);
-        WebClient.RequestHeadersSpec requestHeadersSpec = org.mockito.Mockito.mock(WebClient.RequestHeadersSpec.class);
+        WebClient.RequestHeadersSpec<?> requestHeadersSpec = org.mockito.Mockito.mock(WebClient.RequestHeadersSpec.class);
         WebClient.ResponseSpec responseSpec = org.mockito.Mockito.mock(WebClient.ResponseSpec.class);
 
         when(webClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
         when(requestBodySpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(requestBodySpec);
         when(requestBodySpec.header(anyString(), anyString())).thenReturn(requestBodySpec);
-        when(requestBodySpec.bodyValue(any())).thenReturn(requestHeadersSpec);
+        when(requestBodySpec.bodyValue(any())).thenReturn((WebClient.RequestHeadersSpec) requestHeadersSpec);
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.toBodilessEntity()).thenReturn(reactor.core.publisher.Mono.empty());
 
