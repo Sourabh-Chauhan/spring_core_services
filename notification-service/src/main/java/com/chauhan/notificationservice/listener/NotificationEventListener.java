@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -26,6 +27,9 @@ public class NotificationEventListener {
 
     private final NotificationDispatcher notificationDispatcher;
     private final TemplateRenderingService templateRenderingService;
+
+    @Value("${app.notification.gateway-url:http://localhost:8080}")
+    private String gatewayUrl;
 
     /**
      * Consumes user registration events from the 'notification.email.registration' queue.
@@ -48,10 +52,12 @@ public class NotificationEventListener {
         try {
             String displayName = (event.getName() != null && !event.getName().isBlank()) ? event.getName() : "User";
             String token = (event.getVerificationToken() != null && !event.getVerificationToken().isBlank()) ? event.getVerificationToken() : "N/A";
+            String verificationUrl = gatewayUrl + "/api/v1/auth/verify-email?token=" + token;
 
             String htmlContent = templateRenderingService.render("email/welcome-email", Map.of(
                     "name", displayName,
-                    "verificationToken", token
+                    "verificationToken", token,
+                    "verificationUrl", verificationUrl
             ));
 
             NotificationPayload payload = NotificationPayload.builder()
