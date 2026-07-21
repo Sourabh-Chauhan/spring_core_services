@@ -1,7 +1,9 @@
 package com.chauhan.authservice;
 
+import com.chauhan.authservice.config.RabbitMQProducerConfig;
 import com.chauhan.authservice.entity.User;
 import com.chauhan.authservice.entity.VerificationToken;
+import com.chauhan.authservice.event.UserRegisteredEvent;
 import com.chauhan.authservice.repository.UserRepository;
 import com.chauhan.authservice.repository.VerificationTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,14 +13,14 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -42,7 +44,7 @@ class EmailVerificationTests {
     private VerificationTokenRepository tokenRepository;
 
     @MockitoBean
-    private JavaMailSender mailSender;
+    private RabbitTemplate rabbitTemplate;
 
     private static final String REGISTER_EMAIL = "verify.test@example.com";
     private static final String REGISTER_PASSWORD = "Password123!";
@@ -80,8 +82,12 @@ class EmailVerificationTests {
         String tokenStr = tokenOpt.get().getToken();
         assertNotNull(tokenStr);
 
-        // Verify mailSender was invoked
-        verify(mailSender).send(any(SimpleMailMessage.class));
+        // Verify RabbitMQ event was published
+        verify(rabbitTemplate).convertAndSend(
+                eq(RabbitMQProducerConfig.NOTIFICATION_EXCHANGE),
+                eq(RabbitMQProducerConfig.ROUTING_KEY_USER_REGISTERED),
+                any(UserRegisteredEvent.class)
+        );
 
         // 2. Try logging in before verification (should fail with 403 Forbidden)
         String loginJson = "{\"email\":\"" + REGISTER_EMAIL + "\",\"password\":\"" + REGISTER_PASSWORD + "\"}";

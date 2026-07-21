@@ -1,15 +1,16 @@
 package com.chauhan.authservice;
 
+import com.chauhan.authservice.config.RabbitMQProducerConfig;
 import com.chauhan.authservice.dto.UserDto;
 import com.chauhan.authservice.dto.request.LoginRequest;
 import com.chauhan.authservice.dto.response.TokenResponse;
 import com.chauhan.authservice.entity.RefreshToken;
 import com.chauhan.authservice.entity.User;
 import com.chauhan.authservice.entity.VerificationToken;
+import com.chauhan.authservice.event.UserRegisteredEvent;
 import com.chauhan.authservice.exceptions.EmailNotVerifiedException;
 import com.chauhan.authservice.repository.UserRepository;
 import com.chauhan.authservice.security.JwtUtil;
-import com.chauhan.authservice.service.EmailService;
 import com.chauhan.authservice.service.PasswordResetTokenService;
 import com.chauhan.authservice.service.TokenBlacklistService;
 import com.chauhan.authservice.service.UserService;
@@ -24,19 +25,19 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,7 +53,7 @@ class AuthServiceUnitTests {
     private VerificationTokenService tokenService;
 
     @Mock
-    private EmailService emailService;
+    private RabbitTemplate rabbitTemplate;
 
     @Mock
     private AuthenticationManager authenticationManager;
@@ -119,7 +120,11 @@ class AuthServiceUnitTests {
         assertNotNull(registeredDto);
         assertEquals("user@example.com", registeredDto.getEmail());
         
-        verify(emailService).sendVerificationEmail(testUser.getEmail(), "verification-token");
+        verify(rabbitTemplate).convertAndSend(
+                eq(RabbitMQProducerConfig.NOTIFICATION_EXCHANGE),
+                eq(RabbitMQProducerConfig.ROUTING_KEY_USER_REGISTERED),
+                any(UserRegisteredEvent.class)
+        );
         verify(eventPublisher).publishEvent(any());
     }
 

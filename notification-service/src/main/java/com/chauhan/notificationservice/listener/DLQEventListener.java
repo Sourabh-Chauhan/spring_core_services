@@ -39,7 +39,7 @@ public class DLQEventListener {
         long deathCount = 1;
 
         if (xDeathList != null && !xDeathList.isEmpty()) {
-            Map<String, Object> xDeath = xDeathList.get(0);
+            Map<String, Object> xDeath = xDeathList.getFirst();
             originalQueue = String.valueOf(xDeath.get("queue"));
             originalReason = String.valueOf(xDeath.get("reason"));
             Object countObj = xDeath.get("count");

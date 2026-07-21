@@ -13,7 +13,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +42,7 @@ class AuditLoggingTests {
     private VerificationTokenRepository verificationTokenRepository;
 
     @MockitoBean
-    private JavaMailSender mailSender;
+    private RabbitTemplate rabbitTemplate;
 
     private static final String TEST_EMAIL = "audit.test@example.com";
     private static final String TEST_PASSWORD = "Password123!";

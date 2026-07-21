@@ -5,12 +5,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.listener.ConditionalRejectingErrorHandler;
 import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.listener.ConditionalRejectingErrorHandler;
 import org.springframework.amqp.rabbit.retry.RejectAndDontRequeueRecoverer;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -90,16 +90,15 @@ public class RabbitMQConfig {
     }
 
     /**
-     * Configures Jackson2JsonMessageConverter for AMQP JSON payload serialization/deserialization.
+     * Configures JacksonJsonMessageConverter for AMQP JSON payload serialization/deserialization.
      */
     @Bean
-    @SuppressWarnings("deprecation")
     public MessageConverter jsonMessageConverter() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        return new Jackson2JsonMessageConverter(mapper);
+        return new JacksonJsonMessageConverter(String.valueOf(mapper));
     }
 
     /**
@@ -120,7 +119,6 @@ public class RabbitMQConfig {
      * immediately rejecting the message to DLQ without retrying.
      */
     @Bean
-    @SuppressWarnings("deprecation")
     public ConditionalRejectingErrorHandler customErrorHandler() {
         return new ConditionalRejectingErrorHandler(new ConditionalRejectingErrorHandler.DefaultExceptionStrategy() {
             @Override
@@ -134,11 +132,10 @@ public class RabbitMQConfig {
     }
 
     /**
-     * Configures SimpleRabbitListenerContainerFactory to use Jackson2JsonMessageConverter,
+     * Configures SimpleRabbitListenerContainerFactory to use JacksonJsonMessageConverter,
      * exponential retry interceptor, and custom error handler.
      */
     @Bean
-    @SuppressWarnings("deprecation")
     public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
