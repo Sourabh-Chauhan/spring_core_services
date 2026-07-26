@@ -24,6 +24,7 @@
         <module>gateway-service</module>
         <module>Eureka-server</module>
         <module>notification-service</module>
+        <module>ai-service</module>
     </modules>
 
     <properties>
