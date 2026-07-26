@@ -1,3 +1,47 @@
+server:
+  port: 8085
+
 spring:
   application:
     name: ai-service
+
+  # Spring AI Configuration for Local LM Studio / OpenAI Compatible REST API
+  ai:
+    openai:
+      base-url: ${LM_STUDIO_URL:http://localhost:1234/v1}
+      api-key: ${LM_STUDIO_API_KEY:lm-studio}
+      chat:
+        options:
+          model: ${LM_STUDIO_MODEL:local-model}
+          temperature: 0.7
+
+    # PGvector Store Settings
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE
+        dimensions: 1536
+
+  # Database Connection for Vector Store (PostgreSQL on port 5001)
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5001}/${POSTGRES_DB:auth_db}
+    username: ${POSTGRES_USER:admin_user}
+    password: ${POSTGRES_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+
+# Eureka Client Configuration for Service Discovery
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+# Logging Configuration
+logging:
+  level:
+    com.chauhan.aiservice: DEBUG
+    org.springframework.ai: INFO
+    org.springframework.web: INFO

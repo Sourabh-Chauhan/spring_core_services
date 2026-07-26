@@ -30,19 +30,20 @@ This checklist tracks the step-by-step development goals, components, and integr
 
 ## 2. Service Configuration & Service Discovery
 
-- [ ] **Application Configuration (`application.yml`)**
-  - [ ] Configure `server.port: 8085` and `spring.application.name: ai-service`.
-  - [ ] Configure Eureka Client discovery settings (`eureka.client.service-url.defaultZone: http://localhost:8761/eureka/`).
-  - [ ] Configure Spring AI OpenAI connection for Local LM Studio:
+- [x] **Application Configuration (`application.yaml`)**
+  - [x] Configure `server.port: 8085` and `spring.application.name: ai-service`.
+  - [x] Enable `@EnableDiscoveryClient` in `AiServiceApplication.java`.
+  - [x] Configure Eureka Client discovery settings (`eureka.client.service-url.defaultZone: http://localhost:8761/eureka/`).
+  - [x] Configure Spring AI OpenAI connection for Local LM Studio:
     - Base URL: `http://localhost:1234/v1`
     - API Key: `lm-studio`
     - Model: `local-model`
-  - [ ] Configure PostgreSQL datasource for PGvector database (`jdbc:postgresql://localhost:5001/auth_db`).
-  - [ ] Configure `spring.ai.vectorstore.pgvector` properties (`index-type: HNSW`, `distance-type: COSINE`, `dimensions: 1536`).
+  - [x] Configure PostgreSQL datasource for PGvector database (`jdbc:postgresql://localhost:5001/auth_db`).
+  - [x] Configure `spring.ai.vectorstore.pgvector` properties (`index-type: HNSW`, `distance-type: COSINE`, `dimensions: 1536`).
 
-- [ ] **Spring AI Core Configuration Bean**
-  - [ ] Create `com.chauhan.aiservice.config.AiConfig`.
-  - [ ] Configure `ChatClient` bean using `ChatClient.Builder` with default system instruction persona.
+- [x] **Spring AI Core Configuration Bean**
+  - [x] Create `com.chauhan.aiservice.config.AiConfig`.
+  - [x] Configure `ChatClient` bean using `ChatClient.Builder` with default system instruction persona.
 
 ---
 
