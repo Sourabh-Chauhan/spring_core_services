@@ -10,7 +10,7 @@ import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.retry.RejectAndDontRequeueRecoverer;
-import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +28,9 @@ public class RabbitMQConfig {
     public static final String EXCHANGE_NAME = "notification.exchange";
     public static final String REGISTRATION_QUEUE_NAME = "notification.email.registration";
     public static final String REGISTRATION_ROUTING_KEY = "user.registered";
+
+    public static final String PASSWORD_RESET_QUEUE_NAME = "notification.email.password-reset";
+    public static final String PASSWORD_RESET_ROUTING_KEY = "user.password-reset";
 
     public static final String DLX_EXCHANGE_NAME = "notification.dlx";
     public static final String DLQ_QUEUE_NAME = "notification.dlq";
@@ -89,8 +92,35 @@ public class RabbitMQConfig {
                 .with(REGISTRATION_ROUTING_KEY);
     }
 
+
+
+
     /**
-     * Configures JacksonJsonMessageConverter for AMQP JSON payload serialization/deserialization.
+     * Main Queue for user password reset email notifications.
+     * Configured with Dead Letter Exchange arguments for automatic rerouting on failure.
+     */
+    @Bean
+    public Queue passwordResetNotificationQueue() {
+        return QueueBuilder.durable(PASSWORD_RESET_QUEUE_NAME)
+                .withArgument("x-dead-letter-exchange", DLX_EXCHANGE_NAME)
+                .withArgument("x-dead-letter-routing-key", DLQ_ROUTING_KEY)
+                .build();
+    }
+
+    /**
+     * Binds password reset queue to primary topic exchange using routing key 'user.password-reset'.
+     */
+    @Bean
+    public Binding passwordResetBinding() {
+        return BindingBuilder.bind(passwordResetNotificationQueue())
+                .to(notificationExchange())
+                .with(PASSWORD_RESET_ROUTING_KEY);
+    }
+
+
+
+    /**
+     * Configures Jackson2JsonMessageConverter for AMQP JSON payload serialization/deserialization.
      */
     @Bean
     public MessageConverter jsonMessageConverter() {
@@ -98,7 +128,7 @@ public class RabbitMQConfig {
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        return new JacksonJsonMessageConverter(String.valueOf(mapper));
+        return new Jackson2JsonMessageConverter(mapper);
     }
 
     /**

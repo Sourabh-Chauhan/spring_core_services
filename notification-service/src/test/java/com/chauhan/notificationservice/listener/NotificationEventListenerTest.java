@@ -21,6 +21,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.chauhan.notificationservice.event.PasswordResetRequestedEvent;
+import com.chauhan.notificationservice.exception.PermanentNotificationException;
+
 class NotificationEventListenerTest {
 
     @Mock
@@ -61,5 +64,36 @@ class NotificationEventListenerTest {
         assertEquals(NotificationType.EMAIL, payload.getType());
         assertTrue(payload.getBody().contains("John Doe"));
         assertTrue(payload.getBody().contains("token-12345"));
+    }
+
+    @Test
+    void testHandleUserPasswordResetEvent_Success() {
+        PasswordResetRequestedEvent event = PasswordResetRequestedEvent.builder()
+                .userId(UUID.randomUUID())
+                .email("reset@example.com")
+                .name("Jane Doe")
+                .resetToken("reset-token-67890")
+                .timestamp(Instant.now())
+                .build();
+
+        when(templateRenderingService.render(eq("email/password-reset-email"), anyMap()))
+                .thenReturn("<html>Reset Jane Doe reset-token-67890</html>");
+
+        assertDoesNotThrow(() -> listener.handleUserPasswordResetEvent(event));
+
+        ArgumentCaptor<NotificationPayload> payloadCaptor = ArgumentCaptor.forClass(NotificationPayload.class);
+        verify(notificationDispatcher).dispatch(payloadCaptor.capture());
+
+        NotificationPayload payload = payloadCaptor.getValue();
+        assertNotNull(payload);
+        assertEquals("reset@example.com", payload.getRecipient());
+        assertEquals(NotificationType.EMAIL, payload.getType());
+        assertTrue(payload.getBody().contains("Jane Doe"));
+        assertTrue(payload.getBody().contains("reset-token-67890"));
+    }
+
+    @Test
+    void testHandleUserPasswordResetEvent_NullPayload_ThrowsPermanentException() {
+        assertThrows(PermanentNotificationException.class, () -> listener.handleUserPasswordResetEvent(null));
     }
 }
