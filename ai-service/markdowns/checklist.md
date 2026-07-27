@@ -49,13 +49,13 @@ This checklist tracks the step-by-step development goals, components, and integr
 
 ## 3. Provider Strategy Architecture (LM Studio & Cloud Fallbacks)
 
-- [ ] **Provider Strategy Layer**
-  - [ ] Create `ProviderType` enum (`LM_STUDIO`, `GEMINI`, `CLAUDE`, `OPENAI`).
-  - [ ] Create `AiPromptRequest` DTO (taskId, prompt, systemInstruction, preferredProvider).
-  - [ ] Create `AiPromptResponse` DTO (taskId, output, providerUsed, executionTimeMs).
-  - [ ] Create `AiProviderStrategy` interface (`generate()`, `generateStream()`, `isAvailable()`).
-  - [ ] Implement `LmStudioLocalProvider` using `OpenAiChatModel` pointing to `http://localhost:1234/v1`.
-  - [ ] Create `AiModelRouter` component for dynamic provider selection and fallback handling.
+- [x] **Provider Strategy Layer**
+  - [x] Create `ProviderType` enum (`LM_STUDIO`, `GEMINI`, `CLAUDE`, `OPENAI`).
+  - [x] Create `AiPromptRequest` DTO (taskId, prompt, systemInstruction, preferredProvider).
+  - [x] Create `AiPromptResponse` DTO (taskId, output, providerUsed, executionTimeMs).
+  - [x] Create `AiProviderStrategy` interface (`generate()`, `generateStream()`, `isAvailable()`).
+  - [x] Implement `LmStudioLocalProvider` using `OpenAiChatModel` pointing to `http://localhost:1234/v1`.
+  - [x] Create `AiModelRouter` component for dynamic provider selection and fallback handling.
 
 ---
 
