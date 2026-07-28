@@ -70,14 +70,14 @@ This checklist tracks the step-by-step development goals, components, and integr
 
 ## 4. Specialized Consumer REST & SSE APIs
 
-- [ ] **Create `AiController` (`/api/v1/ai/**`)**
+- [x] **Create `AiController` (`/api/v1/ai/**`)**
   - [x] Implement `POST /api/v1/ai/generate` – Synchronous text generation via `AiModelRouter`.
   - [x] Implement `POST /api/v1/ai/enrich-prompt` – Pre-process & optimize user prompt via local LM Studio.
   - [x] Implement `POST /api/v1/ai/generate-smart` – Smart generation pipeline (local enrichment -> router).
-  - [ ] Implement `GET /api/v1/ai/stream` – Server-Sent Events (`Flux<String>`) streaming for **`ai-research-agent-service`**.
-  - [ ] Implement `POST /api/v1/ai/extract-structured-json` – Structured entity extraction for **`web-scraper-service`**.
-  - [ ] Implement `POST /api/v1/ai/generate-sql` – Natural language to SQL query converter for **`sql-generator-service`**.
-  - [ ] Implement `POST /api/v1/ai/analyze-sentiment` – Structured sentiment analysis returning Java Record `SentimentAnalysisResponse`.
+  - [x] Implement `GET /api/v1/ai/stream` – Server-Sent Events (`Flux<String>`) streaming for **`ai-research-agent-service`**.
+  - [x] Implement `POST /api/v1/ai/extract-structured-json` – Structured entity extraction for **`web-scraper-service`**.
+  - [x] Implement `POST /api/v1/ai/generate-sql` – Natural language to SQL query converter for **`sql-generator-service`**.
+  - [x] Implement `POST /api/v1/ai/analyze-sentiment` – Structured sentiment analysis returning Java Record `SentimentAnalysisResponse`.
 
 ---
 
