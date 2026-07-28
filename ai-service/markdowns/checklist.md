@@ -83,13 +83,14 @@ This checklist tracks the step-by-step development goals, components, and integr
 
 ## 5. RAG (Retrieval-Augmented Generation) & Vector Store Setup
 
-- [ ] **Database Vector Extension**
-  - [ ] Enable PostgreSQL `vector` extension in database container (`postgres-auth:5001`) using `CREATE EXTENSION IF NOT EXISTS vector;`.
-- [ ] **Vector Search & Ingestion Engine**
-  - [ ] Create `com.chauhan.aiservice.service.RagService`.
-  - [ ] Implement document ingestion (`vectorStore.add()`).
-  - [ ] Implement similarity search & prompt context injection (`vectorStore.similaritySearch()`).
-  - [ ] Integrate Spring AI `QuestionAnswerAdvisor` / `VectorStoreAdvisor` into `ChatClient`.
+- [x] **Database Vector Extension**
+  - [x] Enable PostgreSQL `vector` extension in database container (`postgres-auth:5001`) using `CREATE EXTENSION IF NOT EXISTS vector;`.
+- [x] **Vector Search & Ingestion Engine**
+  - [x] Create `com.chauhan.aiservice.service.RagService`.
+  - [x] Implement document ingestion (`vectorStore.add()`) with `TokenTextSplitter`.
+  - [x] Implement similarity search & prompt context injection (`vectorStore.similaritySearch()`).
+  - [x] Integrate Spring AI `QuestionAnswerAdvisor` into `ChatClient`.
+  - [x] Expose `POST /api/v1/ai/rag/ingest` and `POST /api/v1/ai/rag/ask` in `AiController`.
 
 ---
 

@@ -1,11 +1,9 @@
 package com.chauhan.aiservice.controller;
 
-import com.chauhan.aiservice.model.AiPromptRequest;
-import com.chauhan.aiservice.model.AiPromptResponse;
-import com.chauhan.aiservice.model.EnrichedPromptResult;
-import com.chauhan.aiservice.model.SentimentAnalysisResponse;
+import com.chauhan.aiservice.model.*;
 import com.chauhan.aiservice.router.AiModelRouter;
 import com.chauhan.aiservice.service.PromptEnricherService;
+import com.chauhan.aiservice.service.RagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -24,6 +22,7 @@ public class AiController {
 
     private final AiModelRouter aiModelRouter;
     private final PromptEnricherService promptEnricherService;
+    private final RagService ragService;
     private final ChatClient chatClient;
 
     /**
@@ -102,6 +101,7 @@ public class AiController {
                 .call()
                 .content();
 
+        assert jsonOutput != null;
         return ResponseEntity.ok(Map.of("data", jsonOutput));
     }
 
@@ -121,6 +121,7 @@ public class AiController {
                 .call()
                 .content();
 
+        assert sql != null;
         return ResponseEntity.ok(Map.of("sql", sql));
     }
 
@@ -140,5 +141,23 @@ public class AiController {
                 .entity(SentimentAnalysisResponse.class);
 
         return ResponseEntity.ok(analysis);
+    }
+
+    /**
+     * Ingest custom document into PostgreSQL PGvector Store.
+     */
+    @PostMapping("/rag/ingest")
+    public ResponseEntity<DocumentIngestionResponse> ingestDocument(@RequestBody DocumentIngestionRequest request) {
+        log.info("Received RAG document ingestion request");
+        return ResponseEntity.ok(ragService.ingestDocument(request));
+    }
+
+    /**
+     * Perform RAG Query: Similarity search in PGvector + Context Injection + LLM Answer.
+     */
+    @PostMapping("/rag/ask")
+    public ResponseEntity<RagQueryResponse> askWithContext(@RequestBody RagQueryRequest request) {
+        log.info("Received RAG Q&A request");
+        return ResponseEntity.ok(ragService.askWithContext(request));
     }
 }
