@@ -62,7 +62,7 @@ This checklist tracks the step-by-step development goals, components, and integr
 ## 4. Specialized Consumer REST & SSE APIs
 
 - [ ] **Create `AiController` (`/api/v1/ai/**`)**
-  - [ ] Implement `POST /api/v1/ai/generate` – Synchronous text generation via `AiModelRouter`.
+  - [x] Implement `POST /api/v1/ai/generate` – Synchronous text generation via `AiModelRouter`.
   - [ ] Implement `GET /api/v1/ai/stream` – Server-Sent Events (`Flux<String>`) streaming for **`ai-research-agent-service`**.
   - [ ] Implement `POST /api/v1/ai/extract-structured-json` – Structured entity extraction for **`web-scraper-service`**.
   - [ ] Implement `POST /api/v1/ai/generate-sql` – Natural language to SQL query converter for **`sql-generator-service`**.
