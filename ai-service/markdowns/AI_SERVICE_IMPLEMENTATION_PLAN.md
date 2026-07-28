@@ -174,7 +174,7 @@ spring:
     vectorstore:
       pgvector:
         index-type: HNSW
-        distance-type: COSINE
+        distance-type: COSINE_DISTANCE
         dimensions: 1536
 
   # Shared PostgreSQL Container for Vector Store

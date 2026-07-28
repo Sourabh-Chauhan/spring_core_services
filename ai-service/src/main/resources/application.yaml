@@ -19,7 +19,7 @@ spring:
     vectorstore:
       pgvector:
         index-type: HNSW
-        distance-type: COSINE
+        distance-type: COSINE_DISTANCE
         dimensions: 1536
 
   # Database Connection for Vector Store (PostgreSQL on port 5001)

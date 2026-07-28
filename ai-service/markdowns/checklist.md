@@ -39,7 +39,7 @@ This checklist tracks the step-by-step development goals, components, and integr
     - API Key: `lm-studio`
     - Model: `local-model`
   - [x] Configure PostgreSQL datasource for PGvector database (`jdbc:postgresql://localhost:5001/auth_db`).
-  - [x] Configure `spring.ai.vectorstore.pgvector` properties (`index-type: HNSW`, `distance-type: COSINE`, `dimensions: 1536`).
+  - [x] Configure `spring.ai.vectorstore.pgvector` properties (`index-type: HNSW`, `distance-type: COSINE_DISTANCE`, `dimensions: 1536`).
 
 - [x] **Spring AI Core Configuration Bean**
   - [x] Create `com.chauhan.aiservice.config.AiConfig`.
@@ -59,10 +59,21 @@ This checklist tracks the step-by-step development goals, components, and integr
 
 ---
 
+## 3.1 Local Prompt Enrichment & Token Optimization Engine
+
+- [ ] **Prompt Enrichment Engine (`PROMPT_ENRICHMENT_DESIGN_PLAN.md`)**
+  - [ ] Create `IntentCategory` enum (`GENERAL_CHAT`, `TEXT_TO_SQL`, `STRUCTURED_EXTRACTION`, `DOCUMENT_QA`, `SUMMARIZATION`, `OUT_OF_SCOPE`).
+  - [ ] Create `EnrichedPromptResult` Java Record (`rawPrompt`, `optimizedPrompt`, `primaryIntent`, `confidenceScore`, `canHandleLocally`, `estimatedTokenSavings`).
+  - [ ] Create `PromptEnricherService` component using local LM Studio for zero-cost prompt compression & intent extraction.
+
+---
+
 ## 4. Specialized Consumer REST & SSE APIs
 
 - [ ] **Create `AiController` (`/api/v1/ai/**`)**
   - [x] Implement `POST /api/v1/ai/generate` – Synchronous text generation via `AiModelRouter`.
+  - [ ] Implement `POST /api/v1/ai/enrich-prompt` – Pre-process & optimize user prompt via local LM Studio.
+  - [ ] Implement `POST /api/v1/ai/generate-smart` – Smart generation pipeline (local enrichment -> router).
   - [ ] Implement `GET /api/v1/ai/stream` – Server-Sent Events (`Flux<String>`) streaming for **`ai-research-agent-service`**.
   - [ ] Implement `POST /api/v1/ai/extract-structured-json` – Structured entity extraction for **`web-scraper-service`**.
   - [ ] Implement `POST /api/v1/ai/generate-sql` – Natural language to SQL query converter for **`sql-generator-service`**.

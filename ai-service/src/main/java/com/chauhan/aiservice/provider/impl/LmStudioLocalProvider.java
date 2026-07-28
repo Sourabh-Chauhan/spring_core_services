@@ -12,6 +12,8 @@ import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
+import java.util.Objects;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class LmStudioLocalProvider implements AiProviderStrategy {
         log.info("Executing AI prompt generation via LM Studio for taskId: {}", request.getTaskId());
 
         ChatResponse response = openAiChatModel.call(new Prompt(request.getPrompt()));
-        String outputText = response.getResult().getOutput().getText();
+        String outputText = Objects.requireNonNull(response.getResult()).getOutput().getText();
 
         return AiPromptResponse.builder()
                 .taskId(request.getTaskId())
