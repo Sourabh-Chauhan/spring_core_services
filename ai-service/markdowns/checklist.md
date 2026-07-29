@@ -96,9 +96,9 @@ This checklist tracks the step-by-step development goals, components, and integr
 
 ## 6. Spring AI Tools & Function Calling
 
-- [ ] **Dynamic Tool Registration**
-  - [ ] Create `@Tool` annotated components (e.g. `SystemMetricsTool`, `UserServiceTool`).
-  - [ ] Bind tools to `ChatClient` prompts to allow LLM to trigger Java methods dynamically.
+- [x] **Dynamic Tool Registration**
+  - [x] Create `@Tool` annotated components (e.g. `SystemMetricsTool`, `UserServiceTool`).
+  - [x] Bind tools to `ChatClient` prompts to allow LLM to trigger Java methods dynamically.
 
 ---
 

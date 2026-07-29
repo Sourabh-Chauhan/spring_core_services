@@ -4,6 +4,8 @@ import com.chauhan.aiservice.model.*;
 import com.chauhan.aiservice.router.AiModelRouter;
 import com.chauhan.aiservice.service.PromptEnricherService;
 import com.chauhan.aiservice.service.RagService;
+import com.chauhan.aiservice.tools.SystemMetricsTool;
+import com.chauhan.aiservice.tools.UserServiceTool;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -24,6 +26,8 @@ public class AiController {
     private final PromptEnricherService promptEnricherService;
     private final RagService ragService;
     private final ChatClient chatClient;
+    private final SystemMetricsTool systemMetricsTool;
+    private final UserServiceTool userServiceTool;
 
     /**
      * Synchronous text generation endpoint via AiModelRouter.
@@ -160,4 +164,39 @@ public class AiController {
         log.info("Received RAG Q&A request");
         return ResponseEntity.ok(ragService.askWithContext(request));
     }
+
+    /**
+     * Execute prompt with dynamically bound tools (Function Calling).
+     * The LLM can dynamically call SystemMetricsTool or UserServiceTool methods based on user request.
+     */
+    @PostMapping("/tools/execute")
+    public ResponseEntity<Map<String, String>> executeWithTools(@RequestBody Map<String, String> request) {
+        String userPrompt = request.get("prompt");
+        log.info("Received tool execution prompt: {}", userPrompt);
+
+        String result = chatClient.prompt()
+                .user(userPrompt != null ? userPrompt : "")
+                .tools(systemMetricsTool, userServiceTool)
+                .call()
+                .content();
+
+        return ResponseEntity.ok(Map.of("response", result != null ? result : ""));
+    }
+
+    /**
+     * Diagnostic endpoint to get raw system metrics from SystemMetricsTool.
+     */
+    @GetMapping("/tools/system-metrics")
+    public ResponseEntity<SystemMetricsTool.SystemMetrics> getSystemMetrics() {
+        return ResponseEntity.ok(systemMetricsTool.getSystemMetrics());
+    }
+
+    /**
+     * Diagnostic endpoint to get raw system user statistics from UserServiceTool.
+     */
+    @GetMapping("/tools/user-stats")
+    public ResponseEntity<UserServiceTool.SystemUserStats> getUserStats() {
+        return ResponseEntity.ok(userServiceTool.getSystemUserStatistics());
+    }
 }
+
