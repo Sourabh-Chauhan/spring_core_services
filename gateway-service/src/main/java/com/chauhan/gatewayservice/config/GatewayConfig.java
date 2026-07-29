@@ -52,6 +52,16 @@ public class GatewayConfig {
                                 // .requestRateLimiter(c -> c.setKeyResolver(ipKeyResolver))
                         )
                         .uri("lb://user-service"))
+
+                // Route to AI Service (Secured via JwtValidationFilter)
+                .route("ai-service", r -> r.path("/api/v1/ai/**")
+                        .filters(f -> f
+                                .filter(jwtValidationFilter.apply(new JwtValidationFilter.Config()))
+                                // Programmatic rate limiting:
+                                // .requestRateLimiter(c -> c.setKeyResolver(ipKeyResolver))
+                        )
+                        .uri("lb://ai-service"))
                 .build();
     }
 }
+

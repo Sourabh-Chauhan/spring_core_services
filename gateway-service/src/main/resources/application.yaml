@@ -75,6 +75,25 @@ spring:
                   args:
                     name: userServiceCircuitBreaker
                     fallbackUri: forward:/fallback/user
+
+            # Route to AI Service
+            - id: ai-service
+              uri: lb://ai-service
+              predicates:
+                - Path=/api/v1/ai/**
+              filters:
+                - JwtValidationFilter
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@ipKeyResolver}"
+                    throw-on-limit: true
+                - name: CircuitBreaker
+                  args:
+                    name: aiCircuitBreaker
+                    fallbackUri: forward:/fallback/ai
+
 # Eureka client configuration for service discovery
 eureka:
   client:

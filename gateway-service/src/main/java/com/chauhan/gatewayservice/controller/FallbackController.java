@@ -24,6 +24,12 @@ public class FallbackController {
         return getFallbackResponse("User Service is temporarily unavailable. Please try again later.");
     }
 
+    @RequestMapping("/ai")
+    public Mono<ResponseEntity<Map<String, Object>>> aiFallback() {
+        return getFallbackResponse("AI Service is temporarily unavailable. Please try again later.");
+    }
+
+
     private Mono<ResponseEntity<Map<String, Object>>> getFallbackResponse(String message) {
         Map<String, Object> response = new HashMap<>();
         response.put("status", HttpStatus.SERVICE_UNAVAILABLE.value());

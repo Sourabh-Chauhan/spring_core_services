@@ -21,6 +21,8 @@ This checklist tracks the implementation and verification goals for the centrali
 - [x] **Dynamic Routing Rules:**
     - [x] Define route `/api/v1/auth/**`, `/api/v1/admin/**`, and `/api/v1/sessions/**` forwarding to `lb://auth-service`.
     - [x] Define route `/api/v1/users/**` forwarding to `lb://user-service`.
+    - [x] Define route `/api/v1/ai/**` forwarding to `lb://ai-service` with `aiCircuitBreaker`, Redis IP RateLimiter, and JWT Validation.
+
 - [x] **Global CORS Configuration:**
     - [x] Configure central CORS rules in `application.yml` targeting `[/**]` to allow frontend domain (`http://localhost:3000`).
     - [x] Enable `allowCredentials: true` and configure allowed headers/methods.
