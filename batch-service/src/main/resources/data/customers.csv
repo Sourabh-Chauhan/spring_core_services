@@ -1,0 +1,7 @@
+customerId,firstName,lastName,email,status
+101,john,doe,john.doe@example.com,ACTIVE
+102,jane,smith,jane.smith@example.com,ACTIVE
+103,bob,johnson,invalid-email-format,INACTIVE
+104,alice,williams,alice.williams@example.com,ACTIVE
+105,charlie,brown,,PENDING
+106,emma,davis,emma.davis@example.com,ACTIVE
