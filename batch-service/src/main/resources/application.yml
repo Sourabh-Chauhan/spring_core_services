@@ -25,6 +25,7 @@ spring:
         - classpath:schema-customer.sql
       continue-on-error: true
 
+  # Disable automatic eager execution of all jobs on boot
   batch:
     job:
       enabled: false
