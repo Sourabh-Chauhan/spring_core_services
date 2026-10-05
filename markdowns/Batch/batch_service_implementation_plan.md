@@ -1,8 +1,8 @@
 # Spring Batch 6 & Spring Boot 4: Complete Learning & Implementation Plan
 
 > **Target Version**: Spring Boot `4.1.1` | Spring Batch `6.0.5` | Java `17+` (Runtime: OpenJDK `25`)  
-> **Target Module**: [`batch-service`](../batch-service)  
-> **Source Roadmap**: Derived from [`markdowns/batch_plan.md`](./batch_plan.md)  
+> **Target Module**: [`batch-service`](../../batch-service)  
+> **Source Roadmap**: Derived from [`batch_plan.md`](batch_plan.md)  
 > **Database**: PostgreSQL (Running on `localhost:5001`, user `admin_user`, password `password`)  
 > **Configuration Format**: YAML (`application.yml`)  
 > **Target Audience**: Experienced Java/Spring Boot developer mastering Spring Batch from scratch to production-ready enterprise grade.
@@ -54,7 +54,7 @@ Spring Batch 5 & 6 represent a fundamental architectural redesign compared to le
 
 To inspect the 6 core metadata tables hands-on, `batch-service` connects directly to the local PostgreSQL instance configured across the microservices ecosystem (`auth-service` and `ai-service`).
 
-### 2.1 Database Credentials (Extracted from [`auth-service`](../auth-service/src/main/resources/application-dev.yml))
+### 2.1 Database Credentials (Extracted from [`auth-service`](../../auth-service/src/main/resources/application-dev.yml))
 
 - **Host & Port**: `localhost:5001` (Docker container: `core-auth-service-db`)
 - **Database**: `batch_db` (or `auth_db`)
@@ -62,7 +62,7 @@ To inspect the 6 core metadata tables hands-on, `batch-service` connects directl
 - **Password**: `password`
 - **Driver**: `org.postgresql.Driver`
 
-### 2.2 Dependencies Update (`batch-service/pom.xml`)
+### 2.2 Dependencies Update (`../../batch-service/pom.xml`)
 
 Add PostgreSQL driver, Spring Boot JDBC Starter, Web MVC (for REST triggering and actuator), and Lombok:
 
@@ -109,7 +109,7 @@ Add PostgreSQL driver, Spring Boot JDBC Starter, Web MVC (for REST triggering an
 </dependencies>
 ```
 
-### 2.3 Environment Configuration (`batch-service/src/main/resources/application.yml`)
+### 2.3 Environment Configuration (`../../batch-service/src/main/resources/application.yml`)
 
 ```yaml
 server:
@@ -135,9 +135,13 @@ spring:
   # -------------------------------------------------------------
   # Spring Batch Schema Auto-Initialization for PostgreSQL
   # -------------------------------------------------------------
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:org/springframework/batch/core/schema-postgresql.sql
+      continue-on-error: true
+
   batch:
-    jdbc:
-      initialize-schema: always
     job:
       # Disable eager auto-run on boot so jobs are triggered explicitly in tests/APIs
       enabled: false
@@ -149,7 +153,7 @@ logging:
 ```
 
 > [!NOTE]
-> When `spring.batch.jdbc.initialize-schema=always` is set with PostgreSQL, Spring Boot automatically loads and executes `org/springframework/batch/core/schema-postgresql.sql`, generating all 6 `BATCH_*` metadata tables and their sequences (`BATCH_JOB_SEQ`, `BATCH_JOB_EXECUTION_SEQ`, `BATCH_STEP_EXECUTION_SEQ`).
+> In Spring Boot 4, `spring.sql.init` is used with `schema-locations: classpath:org/springframework/batch/core/schema-postgresql.sql` and `continue-on-error: true`. It executes the bundled DDL on application startup, creating all 6 `BATCH_*` metadata tables and their sequences (`BATCH_JOB_SEQ`, `BATCH_JOB_EXECUTION_SEQ`, `BATCH_STEP_EXECUTION_SEQ`) in PostgreSQL.
 
 ---
 
@@ -361,7 +365,7 @@ At the conclusion of the 4 weeks, we build the production-realistic enterprise c
 
 ## 5. Daily Execution Protocol & Learning Rhythm
 
-Following the guidelines in [`markdowns/batch_plan.md`](./batch_plan.md), each daily ~1.5-hour session is structured as follows:
+Following the guidelines in [`batch_plan.md`](batch_plan.md), each daily ~1.5-hour session is structured as follows:
 
 | Allocation     | Activity                   | Focus                                                                                                                                                                                 |
 |:---------------|:---------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -374,6 +378,6 @@ Following the guidelines in [`markdowns/batch_plan.md`](./batch_plan.md), each d
 
 ## 6. Immediate Next Steps
 
-1. Update [`batch-service/pom.xml`](../batch-service/pom.xml) with `postgresql` driver and `spring-boot-starter-jdbc`.
-2. Update [`batch-service/src/main/resources/application.yml`](../batch-service/src/main/resources/application.yml) with the PostgreSQL datasource credentials on port 5001.
+1. Update [`../../batch-service/pom.xml`](../../batch-service/pom.xml) with `postgresql` driver and `spring-boot-starter-jdbc`.
+2. Update [`../../batch-service/src/main/resources/application.yml`](../../batch-service/src/main/resources/application.yml) with the PostgreSQL datasource credentials on port 5001.
 3. Begin **Module 1: The Core Domain Model & Metadata Tables**.

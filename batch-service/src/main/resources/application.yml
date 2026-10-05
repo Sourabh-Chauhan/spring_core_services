@@ -1,0 +1,35 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: batch-service
+
+  # PostgreSQL Database Configuration (Port 5001)
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5001}/${POSTGRES_DB:batch_db}
+    username: ${POSTGRES_USER:admin_user}
+    password: ${POSTGRES_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      pool-name: BatchHikariPool
+
+  # Auto-initialize PostgreSQL Batch Schema & Domain Tables
+  sql:
+    init:
+      mode: always
+      schema-locations:
+        - classpath:org/springframework/batch/core/schema-postgresql.sql
+        - classpath:schema-customer.sql
+      continue-on-error: true
+
+  batch:
+    job:
+      enabled: false
+
+logging:
+  level:
+    org.springframework.batch: INFO
+    org.springframework.jdbc: DEBUG

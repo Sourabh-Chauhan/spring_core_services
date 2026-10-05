@@ -25,6 +25,7 @@
         <module>Eureka-server</module>
         <module>notification-service</module>
         <module>ai-service</module>
+        <module>batch-service</module>
     </modules>
 
     <properties>
