@@ -15,10 +15,11 @@ import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Isolation;
 
 @Configuration
 @EnableBatchProcessing
-@EnableJdbcJobRepository
+@EnableJdbcJobRepository(isolationLevelForCreate = Isolation.READ_COMMITTED)
 public class Module01HelloWorldJobConfig {
 
     private static final Logger log = LoggerFactory.getLogger(Module01HelloWorldJobConfig.class);
