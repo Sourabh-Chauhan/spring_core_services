@@ -23,6 +23,7 @@ spring:
       schema-locations:
         - classpath:org/springframework/batch/core/schema-postgresql.sql
         - classpath:schema-customer.sql
+        - classpath:schema-transaction.sql
       continue-on-error: true
 
   # Disable automatic eager execution of all jobs on boot
